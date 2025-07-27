@@ -19,7 +19,7 @@ DREAM Business Analysis AI 是一个基于人工智能的商业分析系统，�
 ### 环境要求
 
 - Python 3.8+
-- Ollama (本地LLM服务)
+- Ollama (本地LLM服务) 或 OpenRouter API密钥
 - 8GB+ RAM (推荐)
 
 ### 安装步骤
@@ -37,11 +37,21 @@ DREAM Business Analysis AI 是一个基于人工智能的商业分析系统，�
    pip install -r requirements.txt
    ```
 
-3. **设置Ollama**
+3. **设置LLM提供商**
+
+   **选项A: 使用本地Ollama (推荐用于开发)**
    ```bash
    # 安装Ollama: https://ollama.ai/
    ollama serve
    ollama pull qwen2.5:7b
+   ```
+
+   **选项B: 使用OpenRouter API (推荐用于生产)**
+   ```bash
+   # 1. 在 dream/.env 文件中设置API密钥
+   echo "OPENROUTER_API_KEY=your_actual_api_key_here" > ../dream/.env
+   
+   # 2. 获取API密钥: https://openrouter.ai/
    ```
 
 ## 📖 使用步骤
@@ -59,11 +69,36 @@ python rebuild_vectordb_only.py
 此脚本会重新构建向量数据库，确保所有知识库文件都被正确索引。
 
 ### 3. 启动应用
+
+**使用本地Ollama:**
 ```bash
 python start_streamlit.py
 ```
 
-### 4. 访问应用
+**使用OpenRouter API:**
+```bash
+python start_streamlit.py --openrouter qwen/qwen3-235b-a22b-2507:free
+```
+
+**其他OpenRouter模型示例:**
+```bash
+# 使用其他Qwen模型
+python start_streamlit.py --openrouter qwen/qwen-2.5-72b-instruct
+
+# 使用Claude模型
+python start_streamlit.py --openrouter anthropic/claude-3-haiku
+
+# 使用GPT模型
+python start_streamlit.py --openrouter openai/gpt-4o-mini
+```
+
+### 4. 测试LLM连接
+```bash
+# 测试两种提供商的连接
+python test_openrouter.py
+```
+
+### 5. 访问应用
 打开浏览器访问：http://localhost:8501
 
 ## 🏗️ 项目结构
@@ -104,7 +139,18 @@ dream-business-analysis-ai/
    python rebuild_vectordb_only.py
    ```
 
-3. **依赖安装问题**
+3. **OpenRouter API问题**
+   ```bash
+   # 检查API密钥是否正确设置
+   cat ../dream/.env
+   
+   # 测试OpenRouter连接
+   python test_openrouter.py
+   
+   # 检查API余额和限制: https://openrouter.ai/activity
+   ```
+
+4. **依赖安装问题**
    ```bash
    # 使用虚拟环境
    python -m venv venv
@@ -113,6 +159,24 @@ dream-business-analysis-ai/
    
    pip install -r requirements.txt
    ```
+
+## 🌐 LLM提供商对比
+
+| 特性 | 本地Ollama | OpenRouter API |
+|------|------------|----------------|
+| **成本** | 免费 | 按使用付费 |
+| **速度** | 取决于硬件 | 通常更快 |
+| **隐私** | 完全本地 | 数据发送到API |
+| **模型选择** | 有限 | 丰富的模型选择 |
+| **设置复杂度** | 中等 | 简单 |
+| **推荐场景** | 开发测试 | 生产环境 |
+
+## 🔑 支持的OpenRouter模型
+
+- **Qwen系列**: `qwen/qwen3-235b-a22b-2507:free` (免费), `qwen/qwen-2.5-72b-instruct`
+- **Claude系列**: `anthropic/claude-3-haiku`, `anthropic/claude-3-sonnet`
+- **GPT系列**: `openai/gpt-4o-mini`, `openai/gpt-4o`
+- **其他**: 查看 [OpenRouter模型列表](https://openrouter.ai/models)
 
 ## 📞 支持和联系
 

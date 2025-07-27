@@ -7,9 +7,9 @@ from typing import Dict, List, Any, Optional
 from pathlib import Path
 import asyncio
 import logging
-from langchain_ollama import OllamaLLM
 from langchain_core.prompts import PromptTemplate
 from .rag_engine import RAGEngine
+from .llm_provider import LLMProvider
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,24 +20,19 @@ class DreamBusinessAnalyzer:
     def __init__(self, config: Dict[str, Any], rag_engine: RAGEngine):
         self.config = config
         self.rag_engine = rag_engine
-        self.llm = None
+        self.llm_provider = None
         self.business_analyst_prompt = None
         self._initialize_llm()
         self._load_analyst_prompt()
     
     def _initialize_llm(self):
-        """Initialize the Ollama LLM"""
+        """Initialize the LLM provider"""
         try:
-            self.llm = OllamaLLM(
-                base_url=self.config["ollama"]["base_url"],
-                model=self.config["ollama"]["model"],
-                temperature=self.config["ollama"]["temperature"],
-                num_predict=self.config["ollama"]["max_tokens"],
-                timeout=self.config["ollama"]["timeout"]
-            )
-            logger.info("✅ Ollama LLM initialized successfully")
+            self.llm_provider = LLMProvider(self.config)
+            provider_info = self.llm_provider.get_provider_info()
+            logger.info(f"✅ LLM Provider initialized: {provider_info['provider']} ({provider_info['model']})")
         except Exception as e:
-            logger.error(f"❌ Failed to initialize LLM: {e}")
+            logger.error(f"❌ Failed to initialize LLM provider: {e}")
             raise
     
     def _load_analyst_prompt(self):
@@ -106,13 +101,13 @@ class DreamBusinessAnalyzer:
 """
             )
             
-            # Generate analysis using traditional LangChain approach
+            # Generate analysis using LLM provider
             formatted_prompt = prompt_template.format(
                 business_case=business_case,
                 context=context_text,
                 analyst_prompt=self.business_analyst_prompt
             )
-            result = self.llm.invoke(formatted_prompt)
+            result = self.llm_provider.invoke(formatted_prompt)
             
             return {
                 "analysis_type": "complete_dream",
@@ -177,7 +172,7 @@ class DreamBusinessAnalyzer:
                 context=context,
                 analyst_prompt=self.business_analyst_prompt
             )
-            result = self.llm.invoke(formatted_prompt)
+            result = self.llm_provider.invoke(formatted_prompt)
             
             return {
                 "analysis_type": "demand",
@@ -239,7 +234,7 @@ class DreamBusinessAnalyzer:
                 context=context,
                 analyst_prompt=self.business_analyst_prompt
             )
-            result = self.llm.invoke(formatted_prompt)
+            result = self.llm_provider.invoke(formatted_prompt)
             
             return {
                 "analysis_type": "resolution",
@@ -303,7 +298,7 @@ class DreamBusinessAnalyzer:
                 context=context,
                 analyst_prompt=self.business_analyst_prompt
             )
-            result = self.llm.invoke(formatted_prompt)
+            result = self.llm_provider.invoke(formatted_prompt)
             
             return {
                 "analysis_type": "earning",
@@ -369,7 +364,7 @@ class DreamBusinessAnalyzer:
                 context=context,
                 analyst_prompt=self.business_analyst_prompt
             )
-            result = self.llm.invoke(formatted_prompt)
+            result = self.llm_provider.invoke(formatted_prompt)
             
             return {
                 "analysis_type": "acquisition",
@@ -440,7 +435,7 @@ class DreamBusinessAnalyzer:
                 context=context,
                 analyst_prompt=self.business_analyst_prompt
             )
-            result = self.llm.invoke(formatted_prompt)
+            result = self.llm_provider.invoke(formatted_prompt)
             
             return {
                 "analysis_type": "moat",
@@ -507,7 +502,7 @@ class DreamBusinessAnalyzer:
                 context=context,
                 analyst_prompt=self.business_analyst_prompt
             )
-            result = self.llm.invoke(formatted_prompt)
+            result = self.llm_provider.invoke(formatted_prompt)
             
             return {
                 "analysis_type": "hypothesis_generation",

@@ -184,82 +184,22 @@ def main():
         selected = option_menu(
             menu_title="Navigation",
             options=[
-                "🏠 Home",
                 "🔍 DREAM Analysis",
-                "📚 Knowledge Base"
+                "📚 Knowledge Base",
+                "📋 Case Studies"
             ],
-            icons=["house", "search", "book"],
+            icons=["search", "book", "folder"],
             menu_icon="cast",
             default_index=0,
         )
     
     # Main content based on selection
-    if selected == "🏠 Home":
-        show_home_page()
-    elif selected == "🔍 DREAM Analysis":
+    if selected == "🔍 DREAM Analysis":
         show_dream_analysis_page(business_analyzer)
     elif selected == "📚 Knowledge Base":
         show_knowledge_base_page(rag_engine)
-
-def show_home_page():
-    """Home page with overview and quick start"""
-    
-    col1, col2 = st.columns([2, 1])
-    
-    with col1:
-        st.markdown("## 🚀 Welcome to DREAM Business Analysis AI")
-        st.markdown("""
-        This AI-powered platform helps you analyze business opportunities using the **DREAM Framework** - 
-        a systematic approach to business evaluation.
-        
-        ### 🎯 What is DREAM?
-        
-        - **📊 Demand (需求)**: Target user analysis and market validation
-        - **💡 Resolution (解决方案)**: Value proposition and product-market fit  
-        - **💰 Earning (商业模式)**: Revenue models and unit economics
-        - **📈 Acquisition (增长)**: Customer acquisition and growth strategies
-        - **🏰 Moat (壁垒)**: Competitive advantages and defensibility
-        
-        ### ✨ Key Features
-        
-        - **AI-Powered Analysis**: Get comprehensive business insights using advanced LLM
-        - **DREAM Framework**: Systematic 5-step business evaluation methodology
-        - **Knowledge Base**: Searchable repository of business analysis knowledge
-        - **Chinese Market Focus**: Specialized knowledge for Chinese business environment
-        - **Interactive Interface**: Clean, focused UI for efficient business analysis
-        """)
-        
-        # Quick stats
-        st.markdown("### 📈 System Status")
-        col1_1, col1_2, col1_3, col1_4 = st.columns(4)
-        
-        with col1_1:
-            st.metric("🧠 AI Model", "qwen3:8b", "Ready")
-        with col1_2:
-            st.metric("📚 Knowledge Base", "Active", "3 collections")
-        with col1_3:
-            st.metric("🔧 Tools", "2 Available", "All functional")
-        with col1_4:
-            st.metric("⚡ Status", "Online", "All systems go")
-    
-    with col2:
-        st.markdown("### 🎯 Quick Start")
-        
-        if st.button("🔍 Start DREAM Analysis", type="primary", use_container_width=True):
-            st.info("Navigate to 'DREAM Analysis' page using the sidebar menu")
-        
-        if st.button("📚 Explore Knowledge Base", use_container_width=True):
-            st.info("Navigate to 'Knowledge Base' page using the sidebar menu")
-        
-        st.markdown("### 📋 Recent Activity")
-        st.info("No recent analyses yet. Start your first DREAM analysis!")
-        
-        st.markdown("### 🔗 Resources")
-        st.markdown("""
-        - [DREAM Framework Guide](https://example.com)
-        - [API Documentation](http://localhost:8000/docs)
-        - [GitHub Repository](https://github.com/example)
-        """)
+    elif selected == "📋 Case Studies":
+        show_case_studies_page()
 
 def show_dream_analysis_page(business_analyzer):
     """DREAM Framework analysis page"""
@@ -554,7 +494,7 @@ def load_example_business_case():
     
     try:
         # Load the pre-prepared example data
-        example_file = Path(__file__).parent / "data" / "case_studies" / "smart_fitness_coach_app.json"
+        example_file = Path(__file__).parent / "data" / "case_studies" / "dream_analysis_社区旅游.json"
         
         with open(example_file, 'r', encoding='utf-8') as f:
             example_data = json.load(f)
@@ -859,5 +799,178 @@ def show_knowledge_base_page(rag_engine):
                 except Exception as e:
                     st.error(f"Failed to load category content: {e}")
 
+def show_case_studies_page():
+   """Case studies showcase page"""
+   
+   st.markdown("## 📋 Case Studies")
+   st.markdown("Explore real business analysis examples using the DREAM framework")
+   
+   # Load case studies from the data directory
+   case_studies_dir = Path(__file__).parent / "data" / "case_studies"
+   
+   try:
+       # Get all JSON files in the case studies directory
+       case_study_files = list(case_studies_dir.glob("*.json"))
+       
+       if not case_study_files:
+           st.warning("No case studies found in the data directory.")
+           return
+       
+       # Create tabs for different views
+       tab1, tab2 = st.tabs(["📊 Case Study Gallery", "🔍 Detailed View"])
+       
+       with tab1:
+           st.markdown("### Available Case Studies")
+           
+           # Display case studies in a grid
+           cols = st.columns(2)
+           
+           for i, case_file in enumerate(case_study_files):
+               try:
+                   with open(case_file, 'r', encoding='utf-8') as f:
+                       case_data = json.load(f)
+                   
+                   with cols[i % 2]:
+                       # Create a card for each case study
+                       with st.container():
+                           st.markdown(f"""
+                           <div class="metric-card">
+                               <h3>🎯 {case_data.get('business_name', case_file.stem)}</h3>
+                               <p><strong>Type:</strong> {case_data.get('business_type', 'N/A')}</p>
+                               <p><strong>Market:</strong> {case_data.get('target_market', 'N/A')}</p>
+                               <p><strong>Analysis Date:</strong> {case_data.get('analysis_time', 'N/A')}</p>
+                           </div>
+                           """, unsafe_allow_html=True)
+                           
+                           # Show business description if available
+                           if 'business_description' in case_data:
+                               with st.expander("📝 Business Description"):
+                                   st.markdown(case_data['business_description'][:300] + "..." if len(case_data['business_description']) > 300 else case_data['business_description'])
+                           
+                           # Load case study button
+                           if st.button(f"📖 Load Case Study", key=f"load_{case_file.stem}"):
+                               load_case_study_data(case_data)
+                               st.success(f"✅ Loaded case study: {case_data.get('business_name', case_file.stem)}")
+                               st.info("💡 Navigate to DREAM Analysis page to view the loaded analysis results.")
+               
+               except Exception as e:
+                   st.error(f"Error loading case study {case_file.name}: {e}")
+       
+       with tab2:
+           st.markdown("### Detailed Case Study Analysis")
+           
+           # Dropdown to select case study
+           case_study_options = {}
+           for case_file in case_study_files:
+               try:
+                   with open(case_file, 'r', encoding='utf-8') as f:
+                       case_data = json.load(f)
+                   case_study_options[case_data.get('business_name', case_file.stem)] = case_data
+               except:
+                   continue
+           
+           if case_study_options:
+               selected_case = st.selectbox(
+                   "Select a case study to view:",
+                   options=list(case_study_options.keys())
+               )
+               
+               if selected_case:
+                   case_data = case_study_options[selected_case]
+                   display_case_study_details(case_data)
+   
+   except Exception as e:
+       st.error(f"Error loading case studies: {e}")
+
+def load_case_study_data(case_data):
+   """Load case study data into session state"""
+   try:
+       # Set basic information
+       st.session_state.example_business_name = case_data.get('business_name', '')
+       st.session_state.example_business_type = case_data.get('business_type', 'SaaS平台')
+       st.session_state.example_target_market = case_data.get('target_market', '中国大陆')
+       st.session_state.example_loaded = case_data.get('business_description', '')
+       
+       # Load DREAM analysis results if available
+       if 'dream_analysis' in case_data:
+           st.session_state.dream_results = {
+               'business_name': case_data.get('business_name', ''),
+               'business_type': case_data.get('business_type', ''),
+               'analysis_time': case_data.get('analysis_time', datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+               'results': case_data['dream_analysis']
+           }
+       elif 'results' in case_data:
+           # Handle different JSON structure
+           st.session_state.dream_results = {
+               'business_name': case_data.get('business_name', ''),
+               'business_type': case_data.get('business_type', ''),
+               'analysis_time': case_data.get('analysis_time', datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+               'results': case_data['results']
+           }
+   except Exception as e:
+       st.error(f"Error loading case study data: {e}")
+
+def display_case_study_details(case_data):
+   """Display detailed view of a case study"""
+   
+   # Basic information
+   col1, col2, col3 = st.columns(3)
+   with col1:
+       st.metric("Business Name", case_data.get('business_name', 'N/A'))
+   with col2:
+       st.metric("Business Type", case_data.get('business_type', 'N/A'))
+   with col3:
+       st.metric("Target Market", case_data.get('target_market', 'N/A'))
+   
+   # Business description
+   if 'business_description' in case_data:
+       st.markdown("### 📝 Business Description")
+       st.markdown(case_data['business_description'])
+   
+   # DREAM Analysis Results
+   dream_data = case_data.get('dream_analysis') or case_data.get('results')
+   if dream_data:
+       st.markdown("### 🎯 DREAM Analysis Results")
+       
+       # Create tabs for each DREAM component
+       dream_tabs = st.tabs([
+           "📊 Demand", "💡 Resolution", "💰 Earning", "📈 Acquisition", "🏰 Moat"
+       ])
+       
+       components = ['demand', 'resolution', 'earning', 'acquisition', 'moat']
+       component_names = ['Demand (需求分析)', 'Resolution (解决方案)', 'Earning (商业模式)', 'Acquisition (增长策略)', 'Moat (竞争壁垒)']
+       
+       for i, (tab, component, name) in enumerate(zip(dream_tabs, components, component_names)):
+           with tab:
+               st.markdown(f"#### {name}")
+               
+               if component in dream_data:
+                   result = dream_data[component]
+                   
+                   # Handle different data structures
+                   if isinstance(result, dict):
+                       if 'analysis' in result:
+                           content = result['analysis']
+                       else:
+                           content = str(result)
+                   else:
+                       content = str(result)
+                   
+                   # Process and display content
+                   if content:
+                       processed_content, think_blocks = process_think_tags(content)
+                       display_content_with_think_blocks(processed_content, think_blocks)
+                   else:
+                       st.info(f"{name} analysis not available")
+               else:
+                   st.info(f"{name} analysis not available")
+   
+   # Load button
+   st.markdown("---")
+   if st.button("📖 Load This Case Study", type="primary"):
+       load_case_study_data(case_data)
+       st.success(f"✅ Loaded case study: {case_data.get('business_name', 'Unknown')}")
+       st.info("💡 Navigate to DREAM Analysis page to view the loaded analysis results.")
+
 if __name__ == "__main__":
-    main()
+   main()

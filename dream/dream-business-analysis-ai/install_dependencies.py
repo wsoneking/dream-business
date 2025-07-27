@@ -91,7 +91,50 @@ def install_requirements():
         print("   4. On some systems, try: pip3 instead of pip")
         return False
 
-def verify_installation():
+def install_openrouter_dependencies():
+    """Install additional dependencies for OpenRouter support"""
+    print("\n🌐 Installing OpenRouter Dependencies...")
+    
+    # List of additional packages needed for OpenRouter
+    openrouter_packages = [
+        "langchain-openai==0.1.25",
+        "python-dotenv==1.0.1"  # Already in requirements but ensure it's installed
+    ]
+    
+    success_count = 0
+    
+    for package in openrouter_packages:
+        print(f"📦 Installing {package}...")
+        try:
+            subprocess.run([sys.executable, "-m", "pip", "install", package], check=True)
+            print(f"✅ {package} installed successfully")
+            success_count += 1
+        except subprocess.CalledProcessError:
+            print(f"❌ Failed to install {package}")
+    
+    if success_count == len(openrouter_packages):
+        print("🎉 All OpenRouter dependencies installed successfully!")
+        
+        # Check if .env file exists
+        env_file = Path(__file__).parent.parent / ".env"
+        if not env_file.exists():
+            print("\n⚠️  Creating .env file template...")
+            with open(env_file, 'w') as f:
+                f.write("OPENROUTER_API_KEY=your_openrouter_api_key_here\n")
+            print(f"✅ Created {env_file}")
+            print("📝 Please edit the .env file and add your actual OpenRouter API key")
+        else:
+            print(f"\n✅ .env file already exists at {env_file}")
+        
+        print("\n🚀 You can now use OpenRouter with:")
+        print("   python start_streamlit.py --openrouter")
+        
+        return True
+    else:
+        print("❌ Some OpenRouter dependencies failed to install.")
+        return False
+
+def verify_installation(include_openrouter=False):
     """Verify that key dependencies are installed correctly"""
     print("\n🔍 Verifying installation...")
     
@@ -107,6 +150,13 @@ def verify_installation():
         ("numpy", "Numerical computing"),
         ("pandas", "Data analysis")
     ]
+    
+    # Add OpenRouter packages if requested
+    if include_openrouter:
+        key_packages.extend([
+            ("langchain_openai", "LangChain OpenAI integration"),
+            ("dotenv", "Environment variables", "python-dotenv")
+        ])
     
     failed_packages = []
     
@@ -200,35 +250,45 @@ def check_ollama():
     
     return False
 
-def show_next_steps():
+def show_next_steps(openrouter_installed=False):
     """Show next steps after installation"""
     print("\n🚀 Installation Complete! Next Steps:")
     print("=" * 50)
     
-    print("\n1. 🤖 Set up Ollama (if not already done):")
-    print("   - Install from: https://ollama.ai/")
-    print("   - Run: ollama pull qwen2.5:7b")
+    print("\n1. 🤖 Choose your LLM Backend:")
+    if openrouter_installed:
+        print("   Option A - OpenRouter (Cloud API):")
+        print("     - Edit dream/.env and add your OpenRouter API key")
+        print("     - Start with: python start_streamlit.py --openrouter")
+        print("   Option B - Ollama (Local):")
+    else:
+        print("   Ollama (Local):")
+    print("     - Install from: https://ollama.ai/")
+    print("     - Run: ollama pull qwen2.5:7b")
+    print("     - Start with: python start_streamlit.py")
     
     print("\n2. 🗄️  Initialize the knowledge base:")
-    print("   python rebuild_vectordb.py")
+    print("   python update_knowledge_base.py")
     
     print("\n3. 🧪 Test the system:")
-    print("   python test_system.py")
+    if openrouter_installed:
+        print("   python test_openrouter.py")
+    print("   python example_analysis.py")
     
-    print("\n4. 🚀 Start the server:")
-    print("   python start.py")
+    print("\n4. 🚀 Start the Streamlit application:")
+    if openrouter_installed:
+        print("   python start_streamlit.py --openrouter  # For OpenRouter")
+    print("   python start_streamlit.py                # For Ollama")
     
     print("\n5. 🌐 Access the application:")
-    print("   - Web interface: http://localhost:8000")
-    print("   - API documentation: http://localhost:8000/docs")
-    
-    print("\n6. 📚 Try examples:")
-    print("   python example_analysis.py")
+    print("   - Streamlit UI: http://localhost:8501")
     
     print("\n💡 Tips:")
     print("   - Use a virtual environment for better isolation")
     print("   - Check the README.md for detailed documentation")
-    print("   - Join our community for support and updates")
+    if openrouter_installed:
+        print("   - OpenRouter offers both free and paid models")
+        print("   - Free models work well for basic analysis")
 
 def main():
     """Main installation function"""
@@ -253,16 +313,32 @@ def main():
     if not install_requirements():
         sys.exit(1)
     
+    # Ask about OpenRouter installation
+    print("\n🌐 LLM Backend Options:")
+    print("   1. Ollama (Local) - Free, runs on your machine")
+    print("   2. OpenRouter (Cloud API) - Requires API key, includes free models")
+    print("   3. Both - Maximum flexibility")
+    
+    openrouter_installed = False
+    choice = input("\nWhich would you like to install? [1/2/3]: ").strip()
+    
+    if choice in ['2', '3']:
+        if install_openrouter_dependencies():
+            openrouter_installed = True
+        else:
+            print("⚠️  OpenRouter installation failed, continuing with Ollama only")
+    
     # Verify installation
-    if not verify_installation():
+    if not verify_installation(include_openrouter=openrouter_installed):
         print("\n⚠️  Installation completed with some issues")
         print("   The system may still work, but some features might be limited")
     
-    # Check Ollama
-    check_ollama()
+    # Check Ollama (unless user chose OpenRouter only)
+    if choice != '2':
+        check_ollama()
     
     # Show next steps
-    show_next_steps()
+    show_next_steps(openrouter_installed=openrouter_installed)
     
     print("\n🎉 Setup completed successfully!")
     print("   You're ready to start using DREAM Business Analysis AI!")
