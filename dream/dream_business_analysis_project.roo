@@ -1,0 +1,551 @@
+# 🎯 DREAM Business Analysis AI Agent
+# Specialized AI system for comprehensive business case analysis using the DREAM framework
+# Based on Jin's business course methodology and proven AI agent architecture
+
+project_name: DreamBusinessAnalysisAI
+description: |
+  专为中国市场设计的智能商业分析AI助手，帮助创业者、投资人和商业专业人士使用DREAM框架方法论分析商业案例。
+  
+  DREAM商业分析五步法：
+  - **需求 (Demand)**: 目标用户分析、使用场景识别、真实市场需求验证
+  - **解决方案 (Resolution)**: 价值主张设计、产品内核定义、最小可行解决方案
+  - **商业模式 (Earning)**: 商业模式可行性、单位经济模型、可持续盈利能力
+  - **增长 (Acquisition)**: 增长策略、客户获取、规模化机制
+  - **壁垒 (Moat)**: 竞争优势、进入壁垒、可防御性分析
+  
+  该AI系统结合结构化商业分析方法论与RAG驱动的洞察，为中国市场提供全面的、假设驱动的商业评估和战略建议。
+
+# 🛠️ Technology Stack
+tech_stack:
+  core:
+    - Python 3.8+
+    - LangChain (0.2.x) - LLM application framework
+    - LangChain Community - Additional integrations
+    - LangChain Text Splitters - Document processing
+    - LangChain Ollama - Local LLM integration
+  
+  llm_backend:
+    - Ollama - Local LLM deployment
+    - Recommended models: qwen3:8b, llama3, mistral
+  
+  vector_database:
+    - ChromaDB (primary) - Vector storage and similarity search
+    - FAISS (alternative) - Facebook AI Similarity Search
+  
+  web_framework:
+    - FastAPI - High-performance web API
+    - Uvicorn - ASGI server
+    - Pydantic - Data validation
+  
+  embeddings:
+    - Sentence Transformers - Text embeddings
+    - HuggingFace Embeddings - Alternative embedding models
+  
+  utilities:
+    - PyYAML - Configuration management
+    - Requests - HTTP client
+    - Jinja2 - Template engine
+    - AIOFiles - Async file operations
+    - Pandas - Data analysis and manipulation
+    - NumPy - Numerical computations
+    - Matplotlib/Plotly - Business metrics visualization
+
+# 🎯 Core Features
+features:
+  essential:
+    - DREAM framework-based business analysis
+    - Hypothesis-driven evaluation methodology
+    - Scientific decision-making support (Width, Depth, Height)
+    - Key assumption breakdown and validation
+    - Unit economics modeling and analysis
+    - RESTful API endpoints for business queries
+    - 中文优先的智能分析（主要服务中国市场）
+    - Business canvas generation and analysis
+  
+  advanced:
+    - 5-Phase systematic business evaluation process
+    - AARRR funnel analysis and optimization
+    - ROI and opportunity cost calculations
+    - Competitive benchmarking and analysis
+    - Business model pattern recognition
+    - Risk assessment and mitigation strategies
+    - Growth hypothesis testing framework
+    - Interactive business case workshops
+
+# 📁 Project Structure
+suggested_directory_structure: |
+  dream-business-analysis-ai/
+  ├── app/                          # Core application code
+  │   ├── __init__.py              # Package initialization
+  │   ├── main.py                  # FastAPI application entry point
+  │   ├── chain.py                 # LangChain integration and QA chains
+  │   ├── rag_engine.py            # RAG implementation and vector DB
+  │   ├── business_analyzer.py     # DREAM framework analysis engine
+  │   └── prompt_templates/        # Business analysis prompt templates
+  │       ├── dream_prompts.py     # DREAM-specific prompts
+  │       ├── hypothesis_prompts.py # Hypothesis generation prompts
+  │       └── decision_prompts.py  # Scientific decision-making prompts
+  ├── api/                         # API routes and endpoints
+  │   ├── __init__.py
+  │   ├── routes.py                # RESTful API endpoints
+  │   └── business_routes.py       # Business analysis specific endpoints
+  ├── config/                      # Configuration files
+  │   ├── ollama_config.yaml       # LLM and system configuration
+  │   └── business_analyst_prompt.txt # AI business analyst personality
+  ├── data/                        # Knowledge base and business data
+  │   ├── frameworks/              # Business frameworks and methodologies
+  │   ├── case_studies/            # Real business case examples
+  │   ├── templates/               # Business analysis templates
+  │   ├── benchmarks/              # Industry benchmarks and data
+  │   └── vectordb/                # Vector database (auto-generated)
+  ├── tools/                       # Business analysis utilities
+  │   ├── hypothesis_manager.py    # Hypothesis tracking and validation
+  │   ├── unit_economics.py        # Unit model calculations
+  │   ├── roi_calculator.py        # ROI and financial analysis
+  │   └── canvas_generator.py      # Business canvas creation
+  ├── requirements.txt             # Python dependencies
+  ├── README.md                    # Project documentation
+  ├── start.py                     # Easy startup script
+  ├── test_system.py               # System testing and validation
+  ├── example_analysis.py          # Business analysis examples
+  ├── rebuild_vectordb.py          # Vector database management
+  └── install_dependencies.py     # Dependency installation helper
+
+# 📝 Input Data Sources
+input_files:
+  knowledge_base:
+    - /data/frameworks/*.md         # DREAM framework documentation
+    - /data/case_studies/*.md       # Real business case studies
+    - /data/templates/*.md          # Analysis templates and checklists
+    - /data/benchmarks/*.txt        # Industry benchmarks and metrics
+  
+  configuration:
+    - /config/business_analyst_prompt.txt # AI personality and analysis style
+    - /config/ollama_config.yaml    # System and model configuration
+  
+  templates:
+    - /app/prompt_templates/        # Specialized business analysis prompts
+
+# 🎭 AI商业分析师人格模板
+custom_prompt_template: |
+  你是一位经验丰富的商业分析师和战略顾问，专门使用DREAM框架方法论进行全面的商业案例分析。
+  
+  重要提示：始终用中文回答问题，专注服务中国市场的商业分析需求。
+  
+  你的特点：
+  - 分析性强，采用假设驱动的方法
+  - 在中国创业生态系统和商业模式验证方面经验丰富
+  - 精通财务建模和单位经济学分析
+  - 战略思维与实际执行并重
+  - 数据驱动决策，具有敏锐的商业直觉
+  - 深度了解中国市场特点和商业环境
+  
+  DREAM框架专业能力：
+  - **需求分析**: 擅长用户细分、需求验证和市场规模评估
+  - **解决方案评估**: 精通价值主张设计和产品市场匹配度评估
+  - **商业模式**: 熟练掌握商业模式分析、单位经济学和财务预测
+  - **增长策略**: 在增长黑客、客户获取和规模化方面经验丰富
+  - **壁垒构建**: 了解竞争策略和可持续优势构建
+  
+  分析方法论：
+  1. 使用结构化、假设驱动的分析方法
+  2. 应用五阶段系统化流程（准备 → 加法 → 减法 → 验证 → 迭代）
+  3. 运用科学决策框架（宽度、深度、高度视角）
+  4. 专注于关键假设识别和快速验证
+  5. 提供可操作的洞察和明确的下一步行动
+  6. 平衡定性洞察与定量分析
+  7. 在建议中考虑机会成本和时间窗口
+  
+  回答指导原则：
+  1. 严格按照DREAM五步法顺序分析：需求 → 解决方案 → 商业模式 → 增长 → 壁垒
+  2. 从澄清问题开始，了解商业背景
+  3. 使用DREAM框架组件构建分析结构
+  4. 识别并优先考虑关键商业假设
+  5. 提供战略洞察和战术建议
+  6. 尽可能包含相关基准和行业比较
+  7. 建议低成本验证关键假设的方法
+  8. 以明确的行动项目和成功指标结束
+  
+  沟通风格：
+  - 专业而平易近人的语调
+  - 适当使用商业术语
+  - 提供结构化、逻辑性强的分析
+  - 包含实际案例和类比
+  - 平衡乐观与现实评估
+  - 始终使用中文进行专业商业分析
+
+# 🔧 Implementation Tasks
+tasks:
+  setup:
+    - Set up Python environment and install dependencies
+    - Configure Ollama and pull appropriate LLM model
+    - Create project directory structure
+    - Initialize business analysis knowledge base
+  
+  core_development:
+    - Implement DREAM framework analysis engine
+    - Build hypothesis generation and validation system
+    - Create scientific decision-making support tools
+    - Develop unit economics modeling capabilities
+    - Implement business canvas generation
+    - Build RAG engine with business-specific vector database
+  
+  api_development:
+    - Design RESTful API for business analysis queries
+    - Create endpoints for each DREAM framework component
+    - Implement hypothesis tracking and management APIs
+    - Add business model validation endpoints
+    - Create interactive analysis session management
+  
+  business_tools:
+    - Develop ROI and opportunity cost calculators
+    - Build AARRR funnel analysis tools
+    - Create competitive benchmarking system
+    - Implement business model pattern recognition
+    - Add financial forecasting and scenario planning
+  
+  knowledge_management:
+    - Populate business frameworks and methodologies
+    - Add real business case studies and examples
+    - Include industry benchmarks and metrics
+    - Create analysis templates and checklists
+    - Build comprehensive business analysis knowledge base
+  
+  testing_and_deployment:
+    - Create comprehensive testing suite with business scenarios
+    - Build example business analysis workflows
+    - Write installation and setup scripts
+    - Generate complete documentation and user guides
+
+# 📋 Configuration Template
+configuration_template:
+  ollama_config: |
+    ollama:
+      base_url: "http://localhost:11434"
+      model: "qwen3:8b"  # Recommended for business analysis
+      temperature: 0.3   # Lower temperature for more consistent analysis
+      max_tokens: 4096   # Longer responses for detailed analysis
+      timeout: 120       # Extended timeout for complex analysis
+      system: "You are a business analysis expert. Provide structured, hypothesis-driven insights."
+    
+    vector_db:
+      type: "chromadb"
+      persist_directory: "./data/vectordb"
+      collection_name: "dream_business_knowledge"
+    
+    embedding:
+      model: "sentence-transformers/all-MiniLM-L6-v2"
+      chunk_size: 1500   # Larger chunks for business documents
+      chunk_overlap: 300 # More overlap for context preservation
+    
+    api:
+      host: "0.0.0.0"
+      port: 8000
+      debug: true
+    
+    business_analysis:
+      default_currency: "CNY"
+      analysis_depth: "comprehensive"  # basic, standard, comprehensive
+      include_benchmarks: true
+      generate_visualizations: true
+
+# 🚀 Quick Start Instructions
+post_generation_instructions: |
+  ✅ Step 1: Environment Setup
+     - Install Ollama: https://ollama.ai/
+     - Pull recommended model: `ollama pull qwen3:8b`
+     - Verify model: `ollama list`
+  
+  ✅ Step 2: Project Setup
+     - Create project directory: `mkdir dream-business-analysis-ai && cd dream-business-analysis-ai`
+     - Install dependencies: `python install_dependencies.py`
+     - Or manually: `pip install -r requirements.txt`
+  
+  ✅ Step 3: Knowledge Base Setup
+     - Add business frameworks to `/data/frameworks/`
+     - Include case studies in `/data/case_studies/`
+     - Add industry benchmarks to `/data/benchmarks/`
+     - Customize business analyst personality in `/config/business_analyst_prompt.txt`
+  
+  ✅ Step 4: Initialize System
+     - Build business knowledge vector database: `python rebuild_vectordb.py`
+     - Test system with sample business case: `python test_system.py`
+     - Start application: `python start.py`
+  
+  ✅ Step 5: Business Analysis Usage
+     - Access web interface: http://localhost:8000
+     - View API docs: http://localhost:8000/docs
+     - Run example analysis: `python example_analysis.py`
+     - Test DREAM analysis: `curl -X POST "http://localhost:8000/api/v1/analyze" -H "Content-Type: application/json" -d '{"business_case": "Your business description", "framework": "DREAM"}'`
+
+# 🎯 DREAM框架分析接口
+api_endpoints:
+  core_analysis:
+    - POST /api/v1/analyze/dream - 完整DREAM框架分析
+    - POST /api/v1/analyze/xuqiu - 需求分析和用户验证
+    - POST /api/v1/analyze/jiejuefangan - 解决方案和价值主张分析
+    - POST /api/v1/analyze/shangye - 商业模式和单位经济学
+    - POST /api/v1/analyze/zengzhang - 增长和客户获取分析
+    - POST /api/v1/analyze/bilei - 竞争优势和壁垒评估
+  
+  hypothesis_management:
+    - POST /api/v1/hypothesis/generate - 生成商业假设
+    - POST /api/v1/hypothesis/validate - 验证关键假设
+    - GET /api/v1/hypothesis/track - 跟踪假设验证进度
+  
+  decision_support:
+    - POST /api/v1/decision/roi - ROI和投资分析
+    - POST /api/v1/decision/opportunity-cost - 机会成本评估
+    - POST /api/v1/decision/scientific - 科学决策框架分析
+  
+  business_tools:
+    - POST /api/v1/tools/canvas - 生成商业画布
+    - POST /api/v1/tools/unit-economics - 单位经济学建模
+    - POST /api/v1/tools/aarrr - AARRR漏斗分析
+    - POST /api/v1/tools/benchmark - 竞争基准分析
+
+# 🔮 Advanced Business Analysis Features
+advanced_features:
+  hypothesis_driven_analysis:
+    - Automated key assumption identification
+    - Hypothesis prioritization using impact/confidence matrix
+    - Rapid validation methodology suggestions
+    - Continuous hypothesis tracking and management
+  
+  scientific_decision_making:
+    - Width analysis: Comprehensive factor consideration
+    - Depth analysis: Qualitative to quantitative progression
+    - Height analysis: Strategic perspective and opportunity cost
+    - Time window and competitive dynamics assessment
+  
+  business_model_intelligence:
+    - Pattern recognition across successful business models
+    - Unit economics optimization recommendations
+    - Revenue model validation and stress testing
+    - Scalability and sustainability analysis
+  
+  growth_strategy_optimization:
+    - Customer acquisition cost (CAC) optimization
+    - Lifetime value (LTV) maximization strategies
+    - Growth loop identification and design
+    - Market expansion and penetration analysis
+
+# 📊 DREAM商业分析模板
+analysis_templates:
+  dream_complete_analysis: |
+    ## DREAM完整商业分析框架
+    
+    ### 第一步：需求分析 (Demand)
+    #### 目标用户细分
+    - 早期用户识别和画像
+    - 细分用户群体定义
+    - 市场规模估算 (TAM, SAM, SOM)
+    
+    #### 需求验证
+    - 问题-解决方案匹配度评估
+    - 痛点严重程度分析
+    - 替代方案评估
+    - 用户真实需求验证
+    
+    ### 第二步：解决方案分析 (Resolution)
+    #### 产品内核定义
+    - 最小可行解决方案识别
+    - 核心价值主张阐述
+    - 功能优先级矩阵
+    
+    #### 价值评估
+    - 用户价值计算：(新体验-旧体验) - 替换成本
+    - 竞争差异化分析
+    - 产品市场匹配度指标
+    
+    ### 第三步：商业模式分析 (Earning)
+    #### 单位经济学建模
+    - 单位模型定义和选择
+    - 单位收入计算
+    - 成本结构分析
+    - 贡献边际评估
+    
+    #### 财务可行性
+    - 盈亏平衡分析
+    - 现金流预测
+    - 规模化经济学
+    - 敏感性分析
+    
+    ### 第四步：增长分析 (Acquisition)
+    #### 获客策略
+    - 获客渠道识别和评估
+    - 客户获取成本 (CAC) 分析
+    - AARRR漏斗分析
+    - 增长假设验证
+    
+    #### 规模化机制
+    - 增长循环设计
+    - 病毒式传播机制
+    - 市场扩张策略
+    
+    ### 第五步：壁垒分析 (Moat)
+    #### 竞争优势
+    - 核心竞争力识别
+    - 护城河构建策略
+    - 进入壁垒分析
+    - 可防御性评估
+    
+    #### 可持续性
+    - 长期竞争优势维护
+    - 网络效应和规模效应
+    - 品牌和用户粘性
+  
+  hypothesis_validation_template: |
+    ## 关键假设验证模板
+    
+    ### 假设识别三步法
+    1. **加法环节**: 拆解出尽量多的假设
+    2. **减法环节**: 找到真正关键的假设
+    3. **验证环节**: 快速学习去验证假设
+    
+    ### 假设优先级评估
+    - 影响业务关键路径的假设
+    - 可以大幅提升业务的假设
+    - 历史验证过的、能力资源够得上的假设
+    - 综合判断成本收益和机会窗口
+    
+    ### 验证方法
+    1. **靠常识**: 用行业经验和基准回答
+    2. **靠调研**: 通过对手和专家访谈回答
+    3. **靠实验**: 设计实验测试，小步快跑，低成本试错
+
+# 🛡️ Business Analysis Best Practices
+best_practices:
+  analysis_methodology:
+    - Start with clear business objectives and success metrics
+    - Use hypothesis-driven approach for all analysis
+    - Combine qualitative insights with quantitative validation
+    - Consider multiple scenarios and stress test assumptions
+    - Focus on actionable insights and clear next steps
+  
+  data_and_research:
+    - Validate assumptions with real market data
+    - Use industry benchmarks for realistic comparisons
+    - Conduct primary research when secondary data is insufficient
+    - Maintain healthy skepticism about optimistic projections
+  
+  decision_making:
+    - Consider opportunity costs in all major decisions
+    - Evaluate time windows and competitive dynamics
+    - Balance long-term vision with short-term execution
+    - Use scientific decision-making framework for complex choices
+  
+  implementation:
+    - Prioritize high-impact, low-cost validation experiments
+    - Build feedback loops for continuous learning
+    - Maintain hypothesis tracking and validation systems
+    - Create clear accountability for assumption testing
+
+# 📚 Business Knowledge Base Structure
+knowledge_base_content:
+  frameworks:
+    - dream_framework_detailed.md
+    - hypothesis_driven_methodology.md
+    - scientific_decision_making.md
+    - five_phase_systematic_process.md
+    - business_canvas_methodology.md
+    - aarrr_funnel_analysis.md
+    - unit_economics_modeling.md
+  
+  case_studies:
+    - successful_startup_analyses.md
+    - business_model_pivots.md
+    - market_entry_strategies.md
+    - growth_optimization_cases.md
+    - competitive_strategy_examples.md
+  
+  templates:
+    - business_analysis_checklist.md
+    - hypothesis_validation_template.md
+    - unit_economics_calculator.md
+    - roi_analysis_template.md
+    - competitive_analysis_framework.md
+  
+  benchmarks:
+    - industry_metrics_database.txt
+    - conversion_rate_benchmarks.txt
+    - customer_acquisition_costs.txt
+    - market_sizing_references.txt
+    - financial_ratio_standards.txt
+
+# 🎯 Success Metrics for Business Analysis AI
+success_metrics:
+  analysis_quality:
+    - Hypothesis identification accuracy > 90%
+    - Business model validation precision > 85%
+    - Strategic recommendation relevance > 90%
+    - User satisfaction with analysis depth > 4.5/5
+  
+  system_performance:
+    - Analysis completion time < 30 seconds
+    - System uptime > 99.5%
+    - API response time < 3 seconds
+    - Knowledge base query accuracy > 95%
+  
+  business_impact:
+    - Decision-making speed improvement
+    - Investment decision accuracy
+    - Business model iteration efficiency
+    - Strategic planning effectiveness
+
+# 🚀 Deployment and Scaling Considerations
+deployment:
+  development:
+    - Local Ollama setup for development
+    - Docker containerization for consistency
+    - Environment-specific configuration management
+    - Comprehensive testing with business scenarios
+  
+  production:
+    - Cloud deployment with auto-scaling
+    - Load balancing for high-traffic analysis
+    - Database backup and disaster recovery
+    - Performance monitoring and alerting
+    - Security hardening for business data
+  
+  enterprise:
+    - Multi-tenant architecture support
+    - Custom knowledge base integration
+    - Advanced analytics and reporting
+    - API rate limiting and usage tracking
+    - Compliance and audit trail features
+
+# 📄 License and Attribution
+license: |
+  This DREAM Business Analysis AI template is based on Jin's business course methodology
+  and the proven AI agent architecture template. It combines academic business analysis
+  frameworks with practical AI implementation for comprehensive business case evaluation.
+  
+  Feel free to use, modify, and distribute according to your needs.
+  Consider adding appropriate attribution to the original DREAM framework methodology.
+
+# 🤝 Community and Business Applications
+community_applications:
+  startup_ecosystem:
+    - Accelerator program integration
+    - Investor due diligence support
+    - Entrepreneur education and training
+    - Business plan evaluation and feedback
+  
+  corporate_innovation:
+    - New product development analysis
+    - Market entry strategy evaluation
+    - Business model innovation support
+    - Strategic planning assistance
+  
+  educational_institutions:
+    - Business school case study analysis
+    - Entrepreneurship course support
+    - MBA program integration
+    - Executive education enhancement
+  
+  consulting_firms:
+    - Client analysis acceleration
+    - Junior analyst training
+    - Standardized analysis frameworks
+    - Quality assurance and consistency

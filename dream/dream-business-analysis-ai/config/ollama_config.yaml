@@ -1,0 +1,28 @@
+ollama:
+  base_url: "http://localhost:11434"
+  model: "qwen3:8b"  # Recommended for business analysis
+  temperature: 0.3   # Lower temperature for more consistent analysis
+  max_tokens: 4096   # Longer responses for detailed analysis
+  timeout: 120       # Extended timeout for complex analysis
+  system: "You are a business analysis expert. Provide structured, hypothesis-driven insights."
+
+vector_db:
+  type: "chromadb"
+  persist_directory: "./data/vectordb"
+  collection_name: "dream_business_knowledge"
+
+embedding:
+  model: "sentence-transformers/all-MiniLM-L6-v2"
+  chunk_size: 1500   # Larger chunks for business documents
+  chunk_overlap: 300 # More overlap for context preservation
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  debug: true
+
+business_analysis:
+  default_currency: "CNY"
+  analysis_depth: "comprehensive"  # basic, standard, comprehensive
+  include_benchmarks: true
+  generate_visualizations: true

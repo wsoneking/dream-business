@@ -1,0 +1,328 @@
+# 🤖 AI Agent Project Template
+# Based on the successful BabyCareAI implementation
+# Use this template to quickly bootstrap new AI agent projects
+
+project_name: [YOUR_PROJECT_NAME]
+description: |
+  [Describe your AI agent project here]
+  
+  This is an AI Agent system built with Ollama local LLM and LangChain. Users can interact with the agent through natural language to get specialized advice and information in [YOUR_DOMAIN].
+  
+  The system uses RAG (Retrieval Augmented Generation) to retrieve information from a local knowledge base and combines it with LLM responses for accurate, contextual answers.
+
+# 🛠️ Technology Stack
+tech_stack:
+  core:
+    - Python 3.8+
+    - LangChain (0.2.x) - LLM application framework
+    - LangChain Community - Additional integrations
+    - LangChain Text Splitters - Document processing
+    - LangChain Ollama - Local LLM integration
+  
+  llm_backend:
+    - Ollama - Local LLM deployment
+    - Recommended models: qwen3:8b, llama3, mistral
+  
+  vector_database:
+    - ChromaDB (primary) - Vector storage and similarity search
+    - FAISS (alternative) - Facebook AI Similarity Search
+  
+  web_framework:
+    - FastAPI - High-performance web API
+    - Uvicorn - ASGI server
+    - Pydantic - Data validation
+  
+  embeddings:
+    - Sentence Transformers - Text embeddings
+    - HuggingFace Embeddings - Alternative embedding models
+  
+  utilities:
+    - PyYAML - Configuration management
+    - Requests - HTTP client
+    - Jinja2 - Template engine
+    - AIOFiles - Async file operations
+
+# 🎯 Core Features
+features:
+  essential:
+    - Local LLM integration via Ollama
+    - RAG-based question answering
+    - RESTful API endpoints
+    - Configurable AI personality/prompts
+    - Multi-format knowledge base support (MD, TXT)
+    - Vector similarity search
+    - Health monitoring and diagnostics
+  
+  advanced:
+    - Multilingual support (auto-detect user language)
+    - Context-aware responses
+    - Specialized prompt templates by category
+    - Knowledge base statistics and management
+    - Interactive demo and testing tools
+    - Comprehensive error handling
+    - Background knowledge base rebuilding
+
+# 📁 Project Structure
+suggested_directory_structure: |
+  your-project-name/
+  ├── app/                          # Core application code
+  │   ├── __init__.py              # Package initialization
+  │   ├── main.py                  # FastAPI application entry point
+  │   ├── chain.py                 # LangChain integration and QA chains
+  │   ├── rag_engine.py            # RAG implementation and vector DB
+  │   └── prompt_templates/        # AI prompt templates
+  │       └── specialized_prompts.py
+  ├── api/                         # API routes and endpoints
+  │   ├── __init__.py
+  │   └── routes.py                # RESTful API endpoints
+  ├── config/                      # Configuration files
+  │   ├── ollama_config.yaml       # LLM and system configuration
+  │   └── custom_prompt.txt        # AI personality and behavior
+  ├── data/                        # Knowledge base and data
+  │   ├── knowledge/               # Structured knowledge (MD files)
+  │   ├── faq/                     # Q&A pairs (TXT files)
+  │   └── vectordb/                # Vector database (auto-generated)
+  ├── requirements.txt             # Python dependencies
+  ├── README.md                    # Project documentation
+  ├── start.py                     # Easy startup script
+  ├── test_system.py               # System testing and validation
+  ├── example_usage.py             # Usage examples and demos
+  ├── rebuild_vectordb.py          # Vector database management
+  └── install_dependencies.py     # Dependency installation helper
+
+# 📝 Input Data Sources
+input_files:
+  knowledge_base:
+    - /data/knowledge/*.md         # Structured knowledge documents
+    - /data/faq/*.txt             # Question-answer pairs
+    - Support for multiple languages
+  
+  configuration:
+    - /config/custom_prompt.txt    # AI personality and response style
+    - /config/ollama_config.yaml   # System and model configuration
+  
+  templates:
+    - /app/prompt_templates/       # Specialized prompts for different scenarios
+
+# 🎭 AI Personality Template
+custom_prompt_template: |
+  You are a [ROLE_DESCRIPTION] who specializes in [DOMAIN_EXPERTISE].
+  
+  CRITICAL: Always respond in the SAME LANGUAGE as the user's question.
+  
+  Your characteristics:
+  - [PERSONALITY_TRAIT_1]
+  - [PERSONALITY_TRAIT_2]
+  - [PERSONALITY_TRAIT_3]
+  
+  Response guidelines:
+  1. Use a [TONE] and [STYLE] tone
+  2. Provide [RESPONSE_FORMAT] when possible
+  3. If questions relate to [CONTEXT_INFO], ask for relevant details first
+  4. Combine knowledge base content with professional expertise
+  5. For [SPECIFIC_SCENARIOS], refer to local resources
+  6. If uncertain, honestly state limitations and suggest alternatives
+  7. End responses with [ENCOURAGING_PHRASE]
+  
+  Response format:
+  - Clear and concise, avoid excessive length
+  - Use [LANGUAGE_STYLE] language
+  - Provide actionable advice
+  - Include safety considerations when necessary
+  - Maintain consistency with user's language
+
+# 🔧 Implementation Tasks
+tasks:
+  setup:
+    - Set up Python environment and install dependencies
+    - Configure Ollama and pull appropriate LLM model
+    - Create project directory structure
+  
+  core_development:
+    - Implement RAG engine with vector database integration
+    - Build LangChain QA chains and prompt management
+    - Create FastAPI application with health endpoints
+    - Develop knowledge base loading and processing
+    - Implement multilingual support and language detection
+  
+  api_development:
+    - Design RESTful API endpoints
+    - Add request/response validation
+    - Implement error handling and logging
+    - Create interactive API documentation
+  
+  knowledge_management:
+    - Populate initial knowledge base
+    - Implement vector database rebuilding
+    - Add knowledge base statistics and monitoring
+    - Support multiple content formats
+  
+  testing_and_deployment:
+    - Create comprehensive testing suite
+    - Build usage examples and demos
+    - Write installation and setup scripts
+    - Generate complete documentation
+
+# 📋 Configuration Template
+configuration_template:
+  ollama_config: |
+    ollama:
+      base_url: "http://localhost:11434"
+      model: "qwen3:8b"  # or llama3, mistral
+      temperature: 0.7
+      max_tokens: 2048
+      timeout: 60
+      system: "You are a helpful assistant. Do not show thinking process."
+    
+    vector_db:
+      type: "chromadb"
+      persist_directory: "./data/vectordb"
+      collection_name: "[project_name]_knowledge"
+    
+    embedding:
+      model: "sentence-transformers/all-MiniLM-L6-v2"
+      chunk_size: 1000
+      chunk_overlap: 200
+    
+    api:
+      host: "0.0.0.0"
+      port: 8000
+      debug: true
+
+# 🚀 Quick Start Instructions
+post_generation_instructions: |
+  ✅ Step 1: Environment Setup
+     - Install Ollama: https://ollama.ai/
+     - Pull recommended model: `ollama pull qwen3:8b`
+     - Verify model: `ollama list`
+  
+  ✅ Step 2: Project Setup
+     - Create project directory: `mkdir your-project-name && cd your-project-name`
+     - Install dependencies: `python install_dependencies.py`
+     - Or manually: `pip install -r requirements.txt`
+  
+  ✅ Step 3: Configuration
+     - Customize `/config/custom_prompt.txt` with your AI personality
+     - Update `/config/ollama_config.yaml` if needed
+     - Add your knowledge base files to `/data/knowledge/` and `/data/faq/`
+  
+  ✅ Step 4: Initialize System
+     - Build vector database: `python rebuild_vectordb.py`
+     - Test system: `python test_system.py`
+     - Start application: `python start.py`
+  
+  ✅ Step 5: Testing and Usage
+     - Access web interface: http://localhost:8000
+     - View API docs: http://localhost:8000/docs
+     - Run examples: `python example_usage.py`
+     - Test API: `curl -X POST "http://localhost:8000/api/v1/ask" -H "Content-Type: application/json" -d '{"question": "Your test question"}'`
+
+# 🔮 Extension Ideas
+future_extensions:
+  user_management:
+    - User profiles and preferences
+    - Session management and history
+    - Personalized recommendations
+  
+  advanced_features:
+    - Multi-agent collaboration
+    - Voice input/output integration
+    - Image and document upload support
+    - Real-time chat interface
+  
+  integrations:
+    - Web chat widget
+    - Mobile app integration
+    - Slack/Discord bots
+    - API webhooks
+  
+  analytics:
+    - Usage analytics and insights
+    - Performance monitoring
+    - A/B testing for prompts
+    - User feedback collection
+
+# 🛡️ Best Practices
+best_practices:
+  development:
+    - Use type hints and proper documentation
+    - Implement comprehensive error handling
+    - Follow RESTful API design principles
+    - Use environment variables for sensitive config
+  
+  security:
+    - Validate all user inputs
+    - Implement rate limiting
+    - Use HTTPS in production
+    - Sanitize file uploads
+  
+  performance:
+    - Optimize vector database queries
+    - Implement caching where appropriate
+    - Monitor memory usage with large knowledge bases
+    - Use async operations for I/O
+  
+  maintenance:
+    - Regular model updates
+    - Knowledge base versioning
+    - Automated testing pipeline
+    - Performance monitoring
+
+# 📊 Success Metrics
+success_metrics:
+  technical:
+    - Response time < 5 seconds
+    - System uptime > 99%
+    - Successful API calls > 95%
+    - Vector database query performance
+  
+  user_experience:
+    - Response relevance and accuracy
+    - User satisfaction ratings
+    - Session duration and engagement
+    - Knowledge base coverage
+
+# 🎯 Customization Guide
+customization_guide: |
+  To adapt this template for your specific use case:
+  
+  1. Replace [YOUR_PROJECT_NAME] with your actual project name
+  2. Update the description with your domain-specific information
+  3. Customize the AI personality in custom_prompt_template
+  4. Add your domain-specific knowledge to /data/ directories
+  5. Modify prompt templates for your use case
+  6. Update API endpoints for your specific functionality
+  7. Customize the web interface and branding
+  8. Add domain-specific validation and error handling
+
+# 📚 Learning Resources
+learning_resources:
+  langchain:
+    - Official Documentation: https://python.langchain.com/
+    - RAG Tutorial: https://python.langchain.com/docs/use_cases/question_answering
+  
+  ollama:
+    - Official Site: https://ollama.ai/
+    - Model Library: https://ollama.ai/library
+  
+  fastapi:
+    - Documentation: https://fastapi.tiangolo.com/
+    - Tutorial: https://fastapi.tiangolo.com/tutorial/
+  
+  vector_databases:
+    - ChromaDB: https://docs.trychroma.com/
+    - FAISS: https://faiss.ai/
+
+# 📄 License and Attribution
+license: |
+  This template is based on the BabyCareAI project implementation.
+  Feel free to use, modify, and distribute according to your needs.
+  Consider adding appropriate attribution if you find this template helpful.
+
+# 🤝 Community and Support
+community: |
+  - Create comprehensive README.md with setup instructions
+  - Add CONTRIBUTING.md for community contributions
+  - Include issue templates for bug reports and feature requests
+  - Consider creating a Discord/Slack community for users
+  - Maintain changelog for version updates

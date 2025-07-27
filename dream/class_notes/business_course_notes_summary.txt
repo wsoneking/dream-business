@@ -1,0 +1,78 @@
+DREAM Business Analysis Framework - by Jin 
+
+一堂课内容有些冗长，我尝试在理解了几节课之后，用自己的思路重新整理了笔记。用英文写是为了换个角度理解。
+This is a new framework I created after learning the Yitang. 
+
+
+* Demand
+* Resolution (solution)
+* Earning (business model)
+* Acquisition (growth)
+* Moat 
+
+Demand
+Origin question. Target user, use case. 
+It must come from the real user needs, not the entrepreneur’s subjective motivation to start a business. 
+
+Resolution
+It is the value question. 
+Why do we need this step? It helps you to validate the core of the product. 
+With this step, you can evaluate this product core at a low cost (instead of initializing the full business)
+
+What is product core?
+Users are willing to choose your minimum viable solution. 
+* When evaluating the strength of a user’s value point, it’s essential to think from the user’s perspective — not from assumptions or product features, but from real needs and pain points.
+* User value is determined by how much better the new experience is compared to the old one, minus the switching cost and the psychological or organizational resistance to change.
+* In the early stages, your product should be intentionally rough and simple. Overbuilding too early can blur your judgment — you won’t be able to tell which feature delivers the core value that users truly care about.
+* A solution focuses on the real problems users want to solve, rather than merely presenting a list of features. Understanding the difference between service attributes (which deliver core value) and feature lists (which describe the product’s functionalities) is crucial.
+
+Earning (Business model)
+It is the efficiency question. Can it make money? Can it make money sustainably? Can it make big money?
+
+Three core capabilities of business analysis
+* Financial Accounting:The ability to accurately calculate costs, revenues, and profits — understanding the complete financial “account” behind the business.
+* Benchmark Analysis:The use of relevant statistical and industry benchmarks to validate assumptions and avoid overly optimistic or inaccurate comparisons.
+* Dynamic Forecasting:The capability to make ongoing, adaptive forecasts that consider changes in scale, external environment, and evolving business conditions.
+
+Unit Model
+A unit model is the smallest business unit that can independently generate value and be replicated at scale. The correctness of unit model selection directly determines the accuracy of business model financial calculations and the reliability of future growth forecasting.
+
+
+Acquisition (growth)
+TODO
+
+
+Moat
+TODO
+
+
+Methodology
+
+Key Hypothesis Breakdown Framework
+* Business Breakdown
+* Hypothesis Generation
+* Prioritization Framework
+* Validation Process
+* Continuous Management
+
+5-Phase Systematic Process
+1. Preparation: Define clear objectives and break down business components
+2. Addition: Generate maximum number of potential hypotheses
+3. Subtraction: Identify truly critical hypotheses through filtering
+4. Validation: Rapid learning cycles to test hypotheses
+5. Iteration: Establish continuous improvement mechanisms
+
+Scientific Decision-Making Framework
+1. Width (Breadth) Comprehensive consideration of all relevant factors
+    * Key Revenue Items
+    * Key Cost Items
+2. Depth (Analysis Level) Progressive analytical rigor from qualitative to quantitative
+    * Qualitative Prioritization 
+    * Partial Quantification 
+    * Quantitative Formulas 
+3. Height (Perspective) Strategic elevation of decision-making viewpoint
+    * Long-term Perspective 
+    * Company-wide Perspective 
+    * Opportunity Cost 
+    * Time Window 
+

@@ -1,0 +1,14 @@
+{
+  "case_id": "llm_generated_001",
+  "title": "LLM生成的商业分析案例",
+  "industry": "基于课程笔记生成",
+  "business_model": "动态生成",
+  "analysis_date": "2025-07-27",
+  "dream_analysis": {
+    "note": "LLM生成的分析内容"
+  },
+  "key_hypotheses": [],
+  "lessons_learned": [
+    "基于课程笔记的LLM分析"
+  ]
+}
