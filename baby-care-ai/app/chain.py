@@ -1,10 +1,48 @@
 import yaml
 from typing import Dict, Any, List
 from langchain_core.prompts import PromptTemplate
-from langchain.chains import RetrievalQA
 from langchain_core.documents import Document
 from app.rag_engine import RAGEngine
 from app.llm_provider import LLMProvider
+
+class FallbackQAChain:
+    """Custom QA Chain for fallback retriever that bypasses Pydantic validation"""
+    
+    def __init__(self, llm, retriever, prompt):
+        self.llm = llm
+        self.retriever = retriever
+        self.prompt = prompt
+    
+    def __call__(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
+        """Process the QA chain call"""
+        query = inputs.get("query", "")
+        
+        # Retrieve relevant documents
+        docs = self.retriever.get_relevant_documents(query)
+        
+        # Format context from documents
+        context = "\n\n".join([doc.page_content for doc in docs])
+        
+        # Format the prompt
+        formatted_prompt = self.prompt.format(context=context, question=query)
+        
+        # Get LLM response
+        response = self.llm.invoke(formatted_prompt)
+        
+        # Extract text content from response (handle AIMessage objects)
+        if hasattr(response, 'content'):
+            response_text = response.content
+        else:
+            response_text = str(response)
+        
+        return {
+            "result": response_text,
+            "source_documents": docs
+        }
+    
+    def invoke(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
+        """Alternative invoke method"""
+        return self.__call__(inputs)
 
 class BabyCareChain:
     def __init__(self, config_path: str = "config/ollama_config.yaml"):
@@ -68,13 +106,11 @@ Provide detailed, practical advice directly in the SAME LANGUAGE as the user's q
             input_variables=["context", "question"]
         )
         
-        # 创建QA链
-        self.qa_chain = RetrievalQA.from_chain_type(
+        # 创建QA链 - 统一使用自定义QA链避免Pydantic兼容性问题
+        self.qa_chain = FallbackQAChain(
             llm=self.llm_provider.llm,
-            chain_type="stuff",
             retriever=self.rag_engine.retriever,
-            chain_type_kwargs={"prompt": PROMPT},
-            return_source_documents=True
+            prompt=PROMPT
         )
         
         print("RAG链设置完成")
