@@ -1,0 +1,22 @@
+ollama:
+  base_url: "http://localhost:11434"
+  model: "qwen3:8b"
+  temperature: 0.7
+  max_tokens: 2048
+  timeout: 60
+  system: "You are a helpful assistant. Do not show your thinking process or use <think> tags. Respond directly and naturally."
+
+vector_db:
+  type: "chromadb"  # or "faiss"
+  persist_directory: "./data/vectordb"
+  collection_name: "baby_care_knowledge"
+
+embedding:
+  model: "sentence-transformers/all-MiniLM-L6-v2"
+  chunk_size: 1000
+  chunk_overlap: 200
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  debug: true

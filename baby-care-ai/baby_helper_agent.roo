@@ -1,0 +1,74 @@
+project_name: BabyCareAI
+description: |
+  这是一个面向新手父母的 AI Agent 系统，基于 Ollama 本地大模型和 LangChain 构建。用户可以通过自然语言提问获取育儿建议、产前准备、购物清单、睡眠训练、喂养等指导信息。
+
+  系统使用 RAG 模式从本地文本知识库中检索信息，并使用 Ollama 中部署的 LLaMA 或 Mistral 模型进行问答回复。
+
+tech_stack:
+  - Python
+  - LangChain
+  - Ollama
+  - FastAPI
+  - ChromaDB (或其他向量数据库)
+  - FAISS (可选替代向量引擎)
+  - Markdown / JSON 作为初始知识源
+
+features:
+  - 本地 LLM 模型调用（Ollama）
+  - 用户提问界面（通过 API 调用）
+  - RAG 模式，使用本地文本作为育儿知识库
+  - 基础用户上下文记忆功能（baby info，如年龄、体重等）
+  - 自定义 Prompt，适合温柔、专业的育儿顾问角色
+
+input_files:
+  - /data/knowledge/*.md
+  - /data/faq/*.txt
+  - /config/custom_prompt.txt （内含 AI 的人格设定和回答风格）
+
+custom_prompt: |
+  你是一位经验丰富、温柔可靠的育儿顾问，擅长为新手爸妈提供贴心、实用的建议。
+  回答时要用亲切、鼓励的语气，尽量提供分步骤建议。
+  如果问题和宝宝年龄有关，请先询问宝宝年龄和基本信息再回答。
+  如果用户的问题涉及产品推荐、购买建议、喂养、情绪、产前准备等，请结合本地资料库回答。
+  如果你无法确定答案，请诚实告诉用户你还需要更多信息或建议他们咨询医生。
+  回答结尾请加入一句鼓励的话，比如“你已经做得很好了，加油！”
+
+tasks:
+  - 构建一个基础 RAG 管道
+  - 使用 LangChain 加载本地文本数据
+  - 嵌入文本到向量数据库（Chroma/FAISS）
+  - 创建一个检索器 + QA Chain
+  - 构建 FastAPI 接口，支持用户提问与回答
+  - 提供一个简单的前端页面（可选）
+  - 支持用户上传自定义知识文件（后期）
+
+suggested_directory_structure:
+  - /app
+    - main.py
+    - chain.py
+    - rag_engine.py
+    - prompt_templates/
+  - /data
+    - knowledge/
+    - faq/
+  - /config
+    - ollama_config.yaml
+    - custom_prompt.txt
+  - /api
+    - routes.py
+  - requirements.txt
+  - README.md
+
+post_generation_instructions: |
+  ✅ 第一步：确认你已安装 Ollama 并拉取模型（如 `ollama run llama3`）
+  ✅ 第二步：运行 `main.py` 来启动 API 服务
+  ✅ 第三步：你可以使用 Postman 或 curl 发送请求测试问答接口
+  ✅ 第四步：你可以向 /data/knowledge 添加更多文档，然后重新嵌入向量库
+
+future_extensions:
+  - 支持用户创建宝宝档案（年龄、体重、偏好）
+  - 对接微信小程序/网页聊天窗口
+  - 加入语音输入/输出
+  - 多 Agent 协同支持（如“购物推荐 Agent”、“产检提醒 Agent”等）
+
+
