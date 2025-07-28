@@ -27,7 +27,7 @@ def main():
     # 初始化RAG引擎
     try:
         rag_engine = RAGEngine()
-        data_dirs = ["data/knowledge", "data/faq", "data/ebook"]
+        data_dirs = ["data/knowledge", "data/faq", "data/ebook_summary"]
         
         print("📚 加载知识库文件...")
         success = rag_engine.initialize_rag(data_dirs, force_rebuild=True)
