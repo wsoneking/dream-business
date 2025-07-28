@@ -383,7 +383,22 @@ class RAGEngine:
             persist_directory = self.config['vector_db']['persist_directory']
             
             # 检查是否需要重建向量数据库
-            if force_rebuild or not os.path.exists(persist_directory):
+            rebuild_needed = force_rebuild or not os.path.exists(persist_directory)
+            
+            # Also check if collection is empty even if directory exists
+            if not rebuild_needed:
+                try:
+                    collection_count = self.collection.count()
+                    if collection_count == 0:
+                        print("现有向量数据库为空，需要重建...")
+                        rebuild_needed = True
+                    else:
+                        print(f"现有向量数据库包含 {collection_count} 个文档")
+                except Exception as e:
+                    print(f"检查现有数据库时出错: {e}，将重建数据库")
+                    rebuild_needed = True
+            
+            if rebuild_needed:
                 print("开始构建向量数据库...")
                 documents = self.load_documents(data_dirs)
                 if documents:

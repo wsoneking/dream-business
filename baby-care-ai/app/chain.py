@@ -253,7 +253,7 @@ if __name__ == "__main__":
     chain = BabyCareChain()
     
     # 设置RAG链
-    data_dirs = ["data/knowledge", "data/faq"]
+    data_dirs = ["data/knowledge", "data/faq", "data/ebook_summary"]
     if chain.setup_rag_chain(data_dirs, force_rebuild=True):
         # 测试问答
         baby_info = {

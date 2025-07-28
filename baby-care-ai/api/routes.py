@@ -45,7 +45,7 @@ async def initialize_chain():
     global baby_care_chain
     try:
         baby_care_chain = BabyCareChain()
-        data_dirs = ["data/knowledge", "data/faq"]
+        data_dirs = ["data/knowledge", "data/faq", "data/ebook_summary"]
         success = baby_care_chain.setup_rag_chain(data_dirs, force_rebuild=False)
         return success
     except Exception as e:
@@ -153,7 +153,7 @@ async def rebuild_knowledge_base(request: RebuildRequest, background_tasks: Back
     
     def rebuild_task():
         try:
-            data_dirs = ["data/knowledge", "data/faq"]
+            data_dirs = ["data/knowledge", "data/faq", "data/ebook_summary"]
             success = baby_care_chain.setup_rag_chain(data_dirs, force_rebuild=request.force_rebuild)
             print(f"知识库重建{'成功' if success else '失败'}")
         except Exception as e:

@@ -145,7 +145,7 @@ def main():
         # Initialize RAG system if not already done
         if 'rag_initialized' not in st.session_state:
             with st.spinner("初始化AI组件... Initializing AI components..."):
-                data_dirs = ["data/knowledge", "data/faq"]
+                data_dirs = ["data/knowledge", "data/faq", "data/ebook_summary"]
                 success = baby_care_chain.setup_rag_chain(data_dirs, force_rebuild=False)
                 if success:
                     st.session_state.rag_initialized = True
