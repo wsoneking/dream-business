@@ -42,7 +42,7 @@ try:
 except Exception as e:
     CHROMADB_AVAILABLE = False
     logger.warning(f"⚠️ ChromaDB dependencies failed to load: {e}")
-    logger.info("🔄 Will use fallback TF-IDF implementation")
+    logger.info("🔄 System will run without vector database")
     # Create a mock BaseRetriever for fallback
     class BaseRetriever:
         pass
@@ -198,7 +198,7 @@ class RAGEngine:
             logger.info("🔄 Will use fallback implementation")
     
     def _initialize_chromadb(self):
-        """Initialize ChromaDB-based RAG engine"""
+        """Initialize ChromaDB-based RAG engine with enhanced error handling"""
         try:
             # Initialize vector store
             persist_directory = self.config['vector_db']['persist_directory']
@@ -207,76 +207,73 @@ class RAGEngine:
             # Ensure directory exists
             os.makedirs(persist_directory, exist_ok=True)
             
-            # Create ChromaDB persistent client to save to disk
-            try:
-                # Use PersistentClient to save data to disk
-                self.chroma_client = chromadb.PersistentClient(path=persist_directory)
-                logger.info(f"✅ ChromaDB PersistentClient created successfully at {persist_directory}")
-                
-                # Get or create collection with error handling
+            # Try multiple ChromaDB initialization strategies
+            client_created = False
+            
+            # Strategy 1: Try PersistentClient with DuckDB backend (most compatible)
+            if not client_created:
                 try:
-                    self.collection = self.chroma_client.get_collection(name=collection_name)
-                    logger.info(f"✅ Retrieved existing collection: {collection_name}")
-                except Exception as get_error:
-                    logger.info(f"Collection doesn't exist, creating new one: {get_error}")
-                    try:
-                        self.collection = self.chroma_client.create_collection(
-                            name=collection_name,
-                            metadata={"hnsw:space": "cosine"}  # Use cosine similarity
-                        )
-                        logger.info(f"✅ Created new collection: {collection_name}")
-                    except Exception as create_error:
-                        logger.warning(f"Failed to create collection with metadata, trying simple creation: {create_error}")
-                        self.collection = self.chroma_client.create_collection(name=collection_name)
-                        logger.info(f"✅ Created new collection (simple): {collection_name}")
-                
-                # Create a custom vectorstore wrapper
-                self.vectorstore = ChromaDBWrapper(
-                    client=self.chroma_client,
-                    collection=self.collection,
-                    embedding_function=self.embeddings
-                )
-                
-                logger.info("✅ ChromaDB RAG Engine initialized successfully")
-                
-            except Exception as e:
-                logger.error(f"❌ ChromaDB PersistentClient initialization failed: {e}")
-                # Fallback to in-memory client if persistent fails
-                logger.info("🔄 Falling back to in-memory ChromaDB client")
+                    from chromadb.config import Settings
+                    settings = Settings(
+                        anonymized_telemetry=False,
+                        chroma_db_impl="duckdb+parquet",
+                        chroma_api_impl="chromadb.api.segment.SegmentAPI"
+                    )
+                    self.chroma_client = chromadb.PersistentClient(path=persist_directory, settings=settings)
+                    logger.info(f"✅ ChromaDB PersistentClient (DuckDB) created successfully at {persist_directory}")
+                    client_created = True
+                except Exception as e:
+                    logger.warning(f"⚠️ DuckDB backend failed: {e}")
+            
+            # Strategy 2: Try PersistentClient with default SQLite backend
+            if not client_created:
+                try:
+                    self.chroma_client = chromadb.PersistentClient(path=persist_directory)
+                    logger.info(f"✅ ChromaDB PersistentClient (SQLite) created successfully at {persist_directory}")
+                    client_created = True
+                except Exception as e:
+                    logger.warning(f"⚠️ SQLite backend failed: {e}")
+            
+            # Strategy 3: Try in-memory client as fallback
+            if not client_created:
                 try:
                     self.chroma_client = chromadb.Client()
                     logger.info("✅ ChromaDB in-memory Client created successfully")
-                    
-                    # Get or create collection
-                    try:
-                        self.collection = self.chroma_client.get_collection(name=collection_name)
-                        logger.info(f"✅ Retrieved existing collection: {collection_name}")
-                    except:
-                        self.collection = self.chroma_client.create_collection(name=collection_name)
-                        logger.info(f"✅ Created new collection: {collection_name}")
-                    
-                    # Create a custom vectorstore wrapper
-                    self.vectorstore = ChromaDBWrapper(
-                        client=self.chroma_client,
-                        collection=self.collection,
-                        embedding_function=self.embeddings
+                    client_created = True
+                except Exception as e:
+                    logger.error(f"❌ Even in-memory ChromaDB failed: {e}")
+                    raise RuntimeError(f"All ChromaDB initialization strategies failed. Last error: {e}")
+            
+            # Get or create collection with error handling
+            try:
+                self.collection = self.chroma_client.get_collection(name=collection_name)
+                logger.info(f"✅ Retrieved existing collection: {collection_name}")
+            except Exception as get_error:
+                logger.info(f"Collection doesn't exist, creating new one: {get_error}")
+                try:
+                    self.collection = self.chroma_client.create_collection(
+                        name=collection_name,
+                        metadata={"hnsw:space": "cosine"}  # Use cosine similarity
                     )
-                    
-                    logger.info("✅ ChromaDB RAG Engine initialized successfully (in-memory)")
-                except Exception as fallback_error:
-                    logger.error(f"❌ Even in-memory ChromaDB failed: {fallback_error}")
-                    raise
+                    logger.info(f"✅ Created new collection: {collection_name}")
+                except Exception as create_error:
+                    logger.warning(f"Failed to create collection with metadata, trying simple creation: {create_error}")
+                    self.collection = self.chroma_client.create_collection(name=collection_name)
+                    logger.info(f"✅ Created new collection (simple): {collection_name}")
+            
+            # Create a custom vectorstore wrapper
+            self.vectorstore = ChromaDBWrapper(
+                client=self.chroma_client,
+                collection=self.collection,
+                embedding_function=self.embeddings
+            )
+            
+            logger.info("✅ ChromaDB RAG Engine initialized successfully")
             
         except Exception as e:
             logger.error(f"❌ ChromaDB initialization failed: {e}")
             raise
     
-    def _initialize_fallback(self):
-        """Handle ChromaDB initialization failure"""
-        logger.error("❌ ChromaDB initialization failed")
-        logger.info("💡 Please ensure you have sqlite3 >= 3.35.0 or install pysqlite3-binary")
-        logger.info("💡 Run: pip install pysqlite3-binary")
-        raise RuntimeError("ChromaDB initialization failed. Please install pysqlite3-binary or upgrade sqlite3.")
     
     def load_documents(self, data_dirs: List[str]) -> List:
         """加载文档"""
@@ -370,6 +367,7 @@ class RAGEngine:
         """初始化RAG系统"""
         if not CHROMADB_AVAILABLE:
             logger.error("❌ ChromaDB dependencies not available")
+            logger.info("💡 System will run in simple mode without vector database")
             return False
             
         try:
@@ -396,7 +394,8 @@ class RAGEngine:
             return True
             
         except Exception as e:
-            logger.error(f"❌ ChromaDB initialization failed: {e}")
+            logger.error(f"❌ RAG initialization failed: {e}")
+            logger.info("💡 System will run in simple mode without vector database")
             return False
 
 if __name__ == "__main__":
