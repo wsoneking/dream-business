@@ -15,6 +15,7 @@ from datetime import datetime
 from streamlit_option_menu import option_menu
 import io
 import re
+import os
 
 # Import our business analysis components
 from app.business_analyzer import DreamBusinessAnalyzer
@@ -71,10 +72,42 @@ st.markdown("""
 
 @st.cache_resource
 def load_config():
-    """Load configuration"""
-    config_path = Path(__file__).parent / "config" / "ollama_config.yaml"
-    with open(config_path, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
+    """Load configuration with cloud compatibility"""
+    try:
+        config_path = Path(__file__).parent / "config" / "ollama_config.yaml"
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = yaml.safe_load(f)
+        
+        # Override with Streamlit secrets if available
+        if hasattr(st, 'secrets') and 'llm' in st.secrets:
+            # Set environment variables from secrets for compatibility
+            os.environ['OPENROUTER_API_KEY'] = st.secrets['llm'].get('OPENROUTER_API_KEY', '')
+            os.environ['LLM_PROVIDER'] = st.secrets['llm'].get('LLM_PROVIDER', 'openrouter')
+            os.environ['OPENROUTER_MODEL'] = st.secrets['llm'].get('OPENROUTER_MODEL', 'qwen/qwen3-14b:free')
+        
+        return config
+    except Exception as e:
+        st.error(f"❌ Failed to load configuration: {e}")
+        # Return a minimal default config for cloud deployment
+        return {
+            "ollama": {
+                "base_url": "http://localhost:11434",
+                "model": "qwen3:8b",
+                "temperature": 0.3,
+                "max_tokens": 4096,
+                "timeout": 120
+            },
+            "vector_db": {
+                "type": "chromadb",
+                "persist_directory": "./data/vectordb",
+                "collection_name": "dream_business_knowledge"
+            },
+            "embedding": {
+                "model": "sentence-transformers/all-MiniLM-L6-v2",
+                "chunk_size": 1500,
+                "chunk_overlap": 300
+            }
+        }
 
 @st.cache_resource
 def initialize_components():

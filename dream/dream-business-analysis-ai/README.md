@@ -16,11 +16,21 @@ DREAM Business Analysis AI 是一个基于人工智能的商业分析系统，�
 
 ## 🚀 快速开始
 
-### 环境要求
+### 🌐 云端部署 (推荐)
+
+**最简单的方式是部署到 Streamlit Community Cloud:**
+
+1. **获取 OpenRouter API 密钥**: 访问 [openrouter.ai](https://openrouter.ai) 注册并获取免费 API 密钥
+2. **部署到 Streamlit Cloud**: 查看详细的 [部署指南](DEPLOYMENT.md)
+3. **一键访问**: 部署完成后即可通过浏览器访问
+
+> 💡 **提示**: 云端部署无需本地安装任何依赖，支持免费的 OpenRouter 模型，适合快速体验和生产使用。
+
+### 本地开发环境要求
 
 - Python 3.8+
-- Ollama (本地LLM服务) 或 OpenRouter API密钥
-- 8GB+ RAM (推荐)
+- OpenRouter API密钥 (推荐) 或 Ollama (本地开发)
+- 8GB+ RAM (推荐用于本地开发)
 
 ### 安装步骤
 
