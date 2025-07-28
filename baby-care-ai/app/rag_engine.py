@@ -19,11 +19,9 @@ logger = logging.getLogger(__name__)
 # Try to import ChromaDB dependencies, fall back if they fail
 try:
     import chromadb
-    from chromadb.config import Settings
     from langchain_text_splitters import RecursiveCharacterTextSplitter
     from langchain_community.document_loaders import DirectoryLoader, TextLoader
     from langchain_huggingface import HuggingFaceEmbeddings
-    from langchain_community.vectorstores import Chroma
     from langchain_core.documents import Document
     from langchain_core.retrievers import BaseRetriever
     CHROMADB_AVAILABLE = True
@@ -35,6 +33,11 @@ except Exception as e:
     # Create a mock BaseRetriever for fallback
     class BaseRetriever:
         pass
+    # Create mock Document class
+    class Document:
+        def __init__(self, page_content="", metadata=None):
+            self.page_content = page_content
+            self.metadata = metadata or {}
 
 # Fallback engine removed - ChromaDB is now working properly
 
@@ -50,47 +53,78 @@ class ChromaDBWrapper:
     
     def add_documents(self, documents):
         """Add documents to the collection"""
+        if not documents:
+            logger.warning("No documents to add")
+            return
+            
         texts = [doc.page_content for doc in documents]
         metadatas = [doc.metadata for doc in documents]
-        ids = [f"doc_{i}" for i in range(len(documents))]
         
-        # Generate embeddings
-        embeddings = self.embedding_function.embed_documents(texts)
+        # Generate unique IDs to avoid conflicts
+        import time
+        timestamp = int(time.time() * 1000)
+        ids = [f"doc_{timestamp}_{i}" for i in range(len(documents))]
         
-        # Add to collection
-        self.collection.add(
-            embeddings=embeddings,
-            documents=texts,
-            metadatas=metadatas,
-            ids=ids
-        )
+        try:
+            # Generate embeddings
+            embeddings = self.embedding_function.embed_documents(texts)
+            
+            # Add to collection in batches to avoid memory issues
+            batch_size = 100
+            for i in range(0, len(documents), batch_size):
+                batch_end = min(i + batch_size, len(documents))
+                batch_embeddings = embeddings[i:batch_end]
+                batch_texts = texts[i:batch_end]
+                batch_metadatas = metadatas[i:batch_end]
+                batch_ids = ids[i:batch_end]
+                
+                self.collection.add(
+                    embeddings=batch_embeddings,
+                    documents=batch_texts,
+                    metadatas=batch_metadatas,
+                    ids=batch_ids
+                )
+                logger.info(f"Added batch {i//batch_size + 1}: {len(batch_texts)} documents")
+                
+        except Exception as e:
+            logger.error(f"Failed to add documents: {e}")
+            raise
     
     def similarity_search(self, query, k=4):
         """Search for similar documents"""
-        # Generate query embedding
-        query_embedding = self.embedding_function.embed_query(query)
-        
-        # Query the collection
-        results = self.collection.query(
-            query_embeddings=[query_embedding],
-            n_results=k
-        )
-        
-        # Convert results to Document objects
-        documents = []
-        if results['documents'] and results['documents'][0]:
-            for i, doc_text in enumerate(results['documents'][0]):
-                metadata = results['metadatas'][0][i] if results['metadatas'] and results['metadatas'][0] else {}
-                if CHROMADB_AVAILABLE:
-                    doc = Document(page_content=doc_text, metadata=metadata)
-                else:
-                    doc = type('Document', (), {
-                        'page_content': doc_text,
-                        'metadata': metadata
-                    })()
-                documents.append(doc)
-        
-        return documents
+        try:
+            # Generate query embedding
+            query_embedding = self.embedding_function.embed_query(query)
+            
+            # Query the collection
+            results = self.collection.query(
+                query_embeddings=[query_embedding],
+                n_results=min(k, 10)  # Limit to reasonable number
+            )
+            
+            # Convert results to Document objects
+            documents = []
+            if results and 'documents' in results and results['documents'] and results['documents'][0]:
+                for i, doc_text in enumerate(results['documents'][0]):
+                    metadata = {}
+                    if results.get('metadatas') and results['metadatas'][0] and i < len(results['metadatas'][0]):
+                        metadata = results['metadatas'][0][i] or {}
+                    
+                    if CHROMADB_AVAILABLE:
+                        doc = Document(page_content=doc_text, metadata=metadata)
+                    else:
+                        doc = type('Document', (), {
+                            'page_content': doc_text,
+                            'metadata': metadata
+                        })()
+                    documents.append(doc)
+            
+            logger.info(f"Found {len(documents)} similar documents for query")
+            return documents
+            
+        except Exception as e:
+            logger.error(f"Similarity search failed: {e}")
+            return []
     
     def as_retriever(self, search_type="similarity", search_kwargs=None):
         """Return a retriever interface"""
@@ -165,13 +199,22 @@ class RAGEngine:
                 self.chroma_client = chromadb.PersistentClient(path=persist_directory)
                 logger.info(f"✅ ChromaDB PersistentClient created successfully at {persist_directory}")
                 
-                # Get or create collection
+                # Get or create collection with error handling
                 try:
                     self.collection = self.chroma_client.get_collection(name=collection_name)
                     logger.info(f"✅ Retrieved existing collection: {collection_name}")
-                except:
-                    self.collection = self.chroma_client.create_collection(name=collection_name)
-                    logger.info(f"✅ Created new collection: {collection_name}")
+                except Exception as get_error:
+                    logger.info(f"Collection doesn't exist, creating new one: {get_error}")
+                    try:
+                        self.collection = self.chroma_client.create_collection(
+                            name=collection_name,
+                            metadata={"hnsw:space": "cosine"}  # Use cosine similarity
+                        )
+                        logger.info(f"✅ Created new collection: {collection_name}")
+                    except Exception as create_error:
+                        logger.warning(f"Failed to create collection with metadata, trying simple creation: {create_error}")
+                        self.collection = self.chroma_client.create_collection(name=collection_name)
+                        logger.info(f"✅ Created new collection (simple): {collection_name}")
                 
                 # Create a custom vectorstore wrapper
                 self.vectorstore = ChromaDBWrapper(
@@ -186,25 +229,29 @@ class RAGEngine:
                 logger.error(f"❌ ChromaDB PersistentClient initialization failed: {e}")
                 # Fallback to in-memory client if persistent fails
                 logger.info("🔄 Falling back to in-memory ChromaDB client")
-                self.chroma_client = chromadb.Client()
-                logger.info("✅ ChromaDB in-memory Client created successfully")
-                
-                # Get or create collection
                 try:
-                    self.collection = self.chroma_client.get_collection(name=collection_name)
-                    logger.info(f"✅ Retrieved existing collection: {collection_name}")
-                except:
-                    self.collection = self.chroma_client.create_collection(name=collection_name)
-                    logger.info(f"✅ Created new collection: {collection_name}")
-                
-                # Create a custom vectorstore wrapper
-                self.vectorstore = ChromaDBWrapper(
-                    client=self.chroma_client,
-                    collection=self.collection,
-                    embedding_function=self.embeddings
-                )
-                
-                logger.info("✅ ChromaDB RAG Engine initialized successfully (in-memory)")
+                    self.chroma_client = chromadb.Client()
+                    logger.info("✅ ChromaDB in-memory Client created successfully")
+                    
+                    # Get or create collection
+                    try:
+                        self.collection = self.chroma_client.get_collection(name=collection_name)
+                        logger.info(f"✅ Retrieved existing collection: {collection_name}")
+                    except:
+                        self.collection = self.chroma_client.create_collection(name=collection_name)
+                        logger.info(f"✅ Created new collection: {collection_name}")
+                    
+                    # Create a custom vectorstore wrapper
+                    self.vectorstore = ChromaDBWrapper(
+                        client=self.chroma_client,
+                        collection=self.collection,
+                        embedding_function=self.embeddings
+                    )
+                    
+                    logger.info("✅ ChromaDB RAG Engine initialized successfully (in-memory)")
+                except Exception as fallback_error:
+                    logger.error(f"❌ Even in-memory ChromaDB failed: {fallback_error}")
+                    raise
             
         except Exception as e:
             logger.error(f"❌ ChromaDB initialization failed: {e}")
