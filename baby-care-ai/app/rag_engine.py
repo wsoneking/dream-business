@@ -192,17 +192,53 @@ class RAGEngine:
             logger.info("🔄 ChromaDB not available, skipping embeddings setup")
             return
             
-        try:
-            model_name = self.config['embedding']['model']
-            self.embeddings = HuggingFaceEmbeddings(
+        model_name = self.config['embedding']['model']
+        logger.info(f"🔄 Initializing embeddings model: {model_name}")
+        
+        # Try multiple strategies to initialize embeddings
+        strategies = [
+            # Strategy 1: Standard initialization
+            lambda: HuggingFaceEmbeddings(
                 model_name=model_name,
                 model_kwargs={'device': 'cpu'},
                 encode_kwargs={'normalize_embeddings': True}
+            ),
+            # Strategy 2: With trust_remote_code=True
+            lambda: HuggingFaceEmbeddings(
+                model_name=model_name,
+                model_kwargs={'device': 'cpu', 'trust_remote_code': True},
+                encode_kwargs={'normalize_embeddings': True}
+            ),
+            # Strategy 3: Alternative model
+            lambda: HuggingFaceEmbeddings(
+                model_name="all-MiniLM-L6-v2",
+                model_kwargs={'device': 'cpu'},
+                encode_kwargs={'normalize_embeddings': True}
+            ),
+            # Strategy 4: Simpler model
+            lambda: HuggingFaceEmbeddings(
+                model_name="paraphrase-MiniLM-L6-v2",
+                model_kwargs={'device': 'cpu'},
+                encode_kwargs={'normalize_embeddings': True}
             )
-            logger.info("✅ Embeddings model initialized successfully")
-        except Exception as e:
-            logger.error(f"❌ Failed to setup embeddings: {e}")
-            logger.info("🔄 Will use fallback implementation")
+        ]
+        
+        for i, strategy in enumerate(strategies, 1):
+            try:
+                logger.info(f"🔄 Trying embeddings strategy {i}...")
+                self.embeddings = strategy()
+                logger.info(f"✅ Embeddings model initialized successfully with strategy {i}")
+                return
+            except Exception as e:
+                logger.warning(f"⚠️ Strategy {i} failed: {e}")
+                if "torch.classes" in str(e) or "__path__._path" in str(e):
+                    logger.info("🔍 Detected PyTorch classes issue, trying alternative approach...")
+                continue
+        
+        # If all strategies fail, log error but don't crash
+        logger.error("❌ All embedding strategies failed")
+        logger.info("🔄 System will run without embeddings (simple mode)")
+        self.embeddings = None
     
     def _initialize_chromadb(self):
         """Initialize ChromaDB-based RAG engine with enhanced error handling"""
@@ -374,6 +410,12 @@ class RAGEngine:
         """初始化RAG系统"""
         if not CHROMADB_AVAILABLE:
             logger.error("❌ ChromaDB dependencies not available")
+            logger.info("💡 System will run in simple mode without vector database")
+            return False
+        
+        # Check if embeddings were successfully initialized
+        if self.embeddings is None:
+            logger.error("❌ Embeddings not available, cannot initialize RAG")
             logger.info("💡 System will run in simple mode without vector database")
             return False
             

@@ -12,6 +12,9 @@ import requests
 import yaml
 from pathlib import Path
 
+# Fix tokenizers parallelism warning
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 def print_banner():
     """打印启动横幅"""
     banner = """

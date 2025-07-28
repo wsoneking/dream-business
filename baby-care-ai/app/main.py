@@ -8,6 +8,9 @@ import os
 import sys
 from pathlib import Path
 
+# Fix tokenizers parallelism warning
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 # Add the parent directory to the Python path so we can import from api
 sys.path.append(str(Path(__file__).parent.parent))
 
