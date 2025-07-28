@@ -84,13 +84,20 @@ class BabyCareChain:
     
     def setup_rag_chain(self, data_dirs: List[str], force_rebuild: bool = False):
         """设置RAG链"""
-        # Get the project root directory (parent of app directory)
-        project_root = Path(__file__).parent.parent
-        config_path = project_root / "config" / "ollama_config.yaml"
-        self.rag_engine = RAGEngine(config_path=str(config_path))
-        
-        if not self.rag_engine.initialize_rag(data_dirs, force_rebuild):
-            print("RAG引擎初始化失败")
+        try:
+            # Get the project root directory (parent of app directory)
+            project_root = Path(__file__).parent.parent
+            config_path = project_root / "config" / "ollama_config.yaml"
+            self.rag_engine = RAGEngine(config_path=str(config_path))
+            
+            if not self.rag_engine.initialize_rag(data_dirs, force_rebuild):
+                print("❌ RAG引擎初始化失败，将使用简单模式")
+                self.rag_engine = None
+                return False
+        except Exception as e:
+            print(f"❌ RAG引擎初始化异常: {str(e)}")
+            print("💡 系统将在没有知识库的情况下运行")
+            self.rag_engine = None
             return False
         
         # 创建提示词模板
@@ -130,12 +137,33 @@ Provide detailed, practical advice directly in the SAME LANGUAGE as the user's q
     
     def ask_question(self, question: str, baby_info: Dict[str, Any] = None) -> Dict[str, Any]:
         """处理用户问题"""
+        # If RAG is not available, use simple LLM response
         if self.qa_chain is None:
-            return {
-                "answer": "系统尚未初始化，请稍后再试。",
-                "sources": [],
-                "error": "Chain not initialized"
-            }
+            print("⚠️ RAG系统不可用，使用简单模式回答")
+            try:
+                # Format question with baby info if available
+                enhanced_question = question
+                if baby_info:
+                    baby_context = self._format_baby_info(baby_info)
+                    enhanced_question = f"{baby_context}\n\n{question}"
+                
+                # Get simple answer without RAG
+                answer = self.get_simple_answer(enhanced_question)
+                
+                return {
+                    "answer": answer,
+                    "sources": [],
+                    "question": question,
+                    "baby_info": baby_info,
+                    "mode": "simple"
+                }
+            except Exception as e:
+                return {
+                    "answer": "抱歉，系统暂时无法处理您的问题。请稍后再试或咨询专业医生。",
+                    "sources": [],
+                    "error": str(e),
+                    "mode": "error"
+                }
         
         try:
             # 如果有宝宝信息，添加到问题中

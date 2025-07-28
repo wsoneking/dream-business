@@ -13,6 +13,19 @@ os.environ["ANONYMIZED_TELEMETRY"] = "False"
 
 import logging
 
+# Check sqlite3 version and provide helpful error message
+import sqlite3
+logger = logging.getLogger(__name__)
+try:
+    sqlite_version = sqlite3.sqlite_version
+    logger.info(f"📊 SQLite version: {sqlite_version}")
+    # ChromaDB requires sqlite3 >= 3.35.0
+    version_parts = [int(x) for x in sqlite_version.split('.')]
+    if version_parts[0] < 3 or (version_parts[0] == 3 and version_parts[1] < 35):
+        logger.warning(f"⚠️ SQLite version {sqlite_version} may be incompatible with ChromaDB (requires >= 3.35.0)")
+except Exception as e:
+    logger.warning(f"⚠️ Could not check SQLite version: {e}")
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -39,9 +52,6 @@ except Exception as e:
             self.page_content = page_content
             self.metadata = metadata or {}
 
-# Fallback engine removed - ChromaDB is now working properly
-
-# FallbackRetriever removed - ChromaDB is now working properly
 
 class ChromaDBWrapper:
     """Custom ChromaDB wrapper to bypass LangChain deprecated configuration"""
@@ -262,9 +272,11 @@ class RAGEngine:
             raise
     
     def _initialize_fallback(self):
-        """Fallback initialization removed - ChromaDB is now working properly"""
-        logger.error("❌ ChromaDB initialization failed and fallback has been removed")
-        raise RuntimeError("ChromaDB initialization failed and no fallback available")
+        """Handle ChromaDB initialization failure"""
+        logger.error("❌ ChromaDB initialization failed")
+        logger.info("💡 Please ensure you have sqlite3 >= 3.35.0 or install pysqlite3-binary")
+        logger.info("💡 Run: pip install pysqlite3-binary")
+        raise RuntimeError("ChromaDB initialization failed. Please install pysqlite3-binary or upgrade sqlite3.")
     
     def load_documents(self, data_dirs: List[str]) -> List:
         """加载文档"""
