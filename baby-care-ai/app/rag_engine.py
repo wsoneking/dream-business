@@ -8,6 +8,13 @@ import yaml
 from typing import List, Dict, Any
 from pathlib import Path
 
+# Import SQLite compatibility module BEFORE any ChromaDB imports
+try:
+    from . import sqlite_compat
+except ImportError:
+    # Handle case where running as main module
+    import sqlite_compat
+
 # Disable ChromaDB telemetry to avoid posthog errors
 os.environ["ANONYMIZED_TELEMETRY"] = "False"
 

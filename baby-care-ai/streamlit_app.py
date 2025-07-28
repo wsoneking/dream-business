@@ -3,6 +3,9 @@ BabyCareAI - Streamlit UI
 Interactive web interface for baby care assistance using AI
 """
 
+# Import SQLite compatibility module FIRST before any other imports
+from app import sqlite_compat
+
 import streamlit as st
 import asyncio
 import yaml

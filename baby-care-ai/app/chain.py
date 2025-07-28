@@ -1,3 +1,10 @@
+# Import SQLite compatibility module FIRST
+try:
+    from . import sqlite_compat
+except ImportError:
+    # Handle case where running as main module
+    import sqlite_compat
+
 import yaml
 import os
 from pathlib import Path

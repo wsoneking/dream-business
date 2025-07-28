@@ -144,11 +144,18 @@ You can use different models by changing the `OPENROUTER_MODEL` setting:
    - Check your OpenRouter account has sufficient credits
    - Try a different model if the current one is unavailable
 
-3. **Vector database issues**
+3. **ChromaDB SQLite compatibility issues**
+   - **Fixed**: This project includes automatic SQLite compatibility fixes
+   - The system uses `pysqlite3-binary` to provide compatible SQLite version
+   - If ChromaDB fails, the system automatically falls back to simple mode
+   - See `CHROMADB_FIX.md` for technical details
+
+4. **Vector database issues**
    - Delete the `data/vectordb/` directory to force rebuild
    - Check that knowledge files exist in `data/knowledge/` and `data/faq/`
+   - The system will work without vector database (simple mode)
 
-4. **Streamlit deployment fails**
+5. **Streamlit deployment fails**
    - Check the logs in Streamlit Community Cloud
    - Ensure all files are committed to GitHub
    - Verify secrets are configured correctly
