@@ -93,19 +93,24 @@ def check_config():
     """检查配置文件"""
     print("⚙️  检查配置文件...")
     
+    # Get the current script directory (should be project root)
+    project_root = Path(__file__).parent
+    
     config_files = [
         "config/ollama_config.yaml",
         "config/custom_prompt.txt"
     ]
     
     for config_file in config_files:
-        if not os.path.exists(config_file):
-            print(f"❌ 配置文件不存在: {config_file}")
+        config_path = project_root / config_file
+        if not config_path.exists():
+            print(f"❌ 配置文件不存在: {config_path}")
             return False
     
     # 检查配置内容
     try:
-        with open("config/ollama_config.yaml", 'r', encoding='utf-8') as f:
+        config_path = project_root / "config/ollama_config.yaml"
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
             model_name = config.get('ollama', {}).get('model', 'llama3')
             print(f"✅ 配置文件正常，使用模型: {model_name}")
@@ -164,8 +169,12 @@ def start_server():
     print("🚀 启动BabyCareAI服务器...")
     
     try:
+        # Get the current script directory (should be project root)
+        project_root = Path(__file__).parent
+        config_path = project_root / "config/ollama_config.yaml"
+        
         # 加载配置
-        with open("config/ollama_config.yaml", 'r', encoding='utf-8') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
         
         api_config = config.get("api", {})

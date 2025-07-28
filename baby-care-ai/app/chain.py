@@ -1,4 +1,6 @@
 import yaml
+import os
+from pathlib import Path
 from typing import Dict, Any, List
 from langchain_core.prompts import PromptTemplate
 from langchain_core.documents import Document
@@ -45,9 +47,13 @@ class FallbackQAChain:
         return self.__call__(inputs)
 
 class BabyCareChain:
-    def __init__(self, config_path: str = "config/ollama_config.yaml"):
+    def __init__(self, config_path: str = None):
         """初始化育儿顾问链"""
-        self.config = self._load_config(config_path)
+        if config_path is None:
+            # Get the project root directory (parent of app directory)
+            project_root = Path(__file__).parent.parent
+            config_path = project_root / "config" / "ollama_config.yaml"
+        self.config = self._load_config(str(config_path))
         self.llm_provider = None
         self.rag_engine = None
         self.qa_chain = None
@@ -62,7 +68,10 @@ class BabyCareChain:
     def _load_custom_prompt(self) -> str:
         """加载自定义提示词"""
         try:
-            with open("config/custom_prompt.txt", 'r', encoding='utf-8') as file:
+            # Get the project root directory (parent of app directory)
+            project_root = Path(__file__).parent.parent
+            prompt_path = project_root / "config" / "custom_prompt.txt"
+            with open(prompt_path, 'r', encoding='utf-8') as file:
                 return file.read().strip()
         except FileNotFoundError:
             return "你是一位专业的育儿顾问，请为用户提供专业、温暖的育儿建议。"
@@ -75,7 +84,10 @@ class BabyCareChain:
     
     def setup_rag_chain(self, data_dirs: List[str], force_rebuild: bool = False):
         """设置RAG链"""
-        self.rag_engine = RAGEngine(config_path="config/ollama_config.yaml")
+        # Get the project root directory (parent of app directory)
+        project_root = Path(__file__).parent.parent
+        config_path = project_root / "config" / "ollama_config.yaml"
+        self.rag_engine = RAGEngine(config_path=str(config_path))
         
         if not self.rag_engine.initialize_rag(data_dirs, force_rebuild):
             print("RAG引擎初始化失败")

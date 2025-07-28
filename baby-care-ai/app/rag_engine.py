@@ -152,9 +152,13 @@ class ChromaDBRetriever:
 class RAGEngine:
     """RAG Engine for Baby Care AI knowledge base with automatic fallback"""
     
-    def __init__(self, config_path: str = "config/ollama_config.yaml"):
+    def __init__(self, config_path: str = None):
         """初始化RAG引擎"""
-        self.config = self._load_config(config_path)
+        if config_path is None:
+            # Get the project root directory (parent of app directory)
+            project_root = Path(__file__).parent.parent
+            config_path = project_root / "config" / "ollama_config.yaml"
+        self.config = self._load_config(str(config_path))
         self.embeddings = None
         self.vectorstore = None
         self.retriever = None

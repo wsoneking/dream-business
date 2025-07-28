@@ -43,15 +43,20 @@ async def startup_event():
     """应用启动时的初始化"""
     print("🚀 BabyCareAI 育儿顾问系统启动中...")
     
+    # Get the project root directory (parent of app directory)
+    project_root = Path(__file__).parent.parent
+    
     # 检查必要的目录和文件
     required_dirs = ["data/knowledge", "data/faq", "config"]
-    for dir_path in required_dirs:
-        if not os.path.exists(dir_path):
+    for dir_name in required_dirs:
+        dir_path = project_root / dir_name
+        if not dir_path.exists():
             print(f"⚠️  警告: 目录 {dir_path} 不存在")
     
     required_files = ["config/ollama_config.yaml", "config/custom_prompt.txt"]
-    for file_path in required_files:
-        if not os.path.exists(file_path):
+    for file_name in required_files:
+        file_path = project_root / file_name
+        if not file_path.exists():
             print(f"⚠️  警告: 文件 {file_path} 不存在")
     
     print("✅ BabyCareAI 育儿顾问系统启动完成！")
@@ -195,7 +200,10 @@ async def read_root():
 def load_config():
     """加载配置"""
     try:
-        with open("config/ollama_config.yaml", 'r', encoding='utf-8') as file:
+        # Get the project root directory (parent of app directory)
+        project_root = Path(__file__).parent.parent
+        config_path = project_root / "config" / "ollama_config.yaml"
+        with open(config_path, 'r', encoding='utf-8') as file:
             return yaml.safe_load(file)
     except FileNotFoundError:
         print("⚠️  配置文件不存在，使用默认配置")
