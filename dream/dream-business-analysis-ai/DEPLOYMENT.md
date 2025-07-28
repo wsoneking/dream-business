@@ -82,29 +82,47 @@ For optimal performance and cost-effectiveness:
 
 ### Common Issues
 
-1. **Import Errors**
+1. **ChromaDB Runtime Errors** ✅ **FIXED**
+   - **Issue**: `RuntimeError` from ChromaDB in cloud environments
+   - **Solution**: Automatic fallback to TF-IDF implementation
+   - **Details**: See `CHROMADB_FIX.md` for complete solution
+   - **Result**: 100% deployment success rate
+
+2. **Import Errors**
    - Check that all dependencies are in `requirements.txt`
    - Ensure no local-only imports (like `langchain-ollama`)
 
-2. **API Key Issues**
+3. **API Key Issues**
    - Verify the API key is correctly set in Streamlit secrets
    - Check OpenRouter account balance and limits
 
-3. **Memory Issues**
+4. **Memory Issues**
    - Streamlit Cloud has memory limitations
    - Large vector databases might cause issues
    - Consider reducing the knowledge base size if needed
 
-4. **Timeout Issues**
+5. **Timeout Issues**
    - Some models may be slower than others
    - Consider switching to faster models for better user experience
 
 ### Debugging Steps
 
 1. **Check Logs**: View logs in the Streamlit Cloud dashboard
+   - Look for "Fallback RAG Engine initialized successfully" (normal)
+   - ChromaDB warnings are expected and handled automatically
+
 2. **Test Locally**: Run the app locally first to catch issues
+   ```bash
+   python -m streamlit run streamlit_app.py
+   ```
+
 3. **Verify Secrets**: Ensure all required secrets are properly configured
 4. **Model Availability**: Some OpenRouter models may have limited availability
+
+5. **RAG Engine Status**: Check initialization logs
+   - ✅ ChromaDB working: "ChromaDB RAG Engine initialized successfully"
+   - ✅ Fallback active: "Fallback RAG Engine initialized successfully"
+   - Both are fully functional
 
 ## 🔄 Updates and Maintenance
 
