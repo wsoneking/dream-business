@@ -193,7 +193,7 @@ def start_server():
             "app.main:app",
             host=host,
             port=port,
-            reload=False,
+            reload=False,  # Disable reload to prevent inotify instance limit issues
             log_level="info"
         )
         

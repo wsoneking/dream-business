@@ -225,6 +225,6 @@ if __name__ == "__main__":
         "app.main:app",
         host=api_config.get("host", "0.0.0.0"),
         port=api_config.get("port", 8000),
-        reload=api_config.get("debug", True),
+        reload=False,  # Disable reload to prevent inotify instance limit issues
         log_level="info"
     )
