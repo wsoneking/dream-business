@@ -153,6 +153,11 @@ class RAGEngine:
     
     async def load_knowledge_base(self):
         """Load business knowledge base into vector store"""
+        if self.use_fallback:
+            # Fallback engine handles its own knowledge base loading
+            logger.info("📚 Knowledge base loading handled by fallback engine")
+            return
+            
         try:
             documents = []
             
@@ -190,8 +195,13 @@ class RAGEngine:
             logger.error(f"❌ Failed to load knowledge base: {e}")
             raise
     
-    async def _load_documents_from_directory(self, directory: Path, doc_type: str) -> List[Document]:
+    async def _load_documents_from_directory(self, directory: Path, doc_type: str) -> List:
         """Load documents from a specific directory"""
+        if not CHROMADB_AVAILABLE:
+            # This method should not be called when using fallback
+            logger.error("❌ _load_documents_from_directory called without ChromaDB dependencies")
+            return []
+            
         documents = []
         
         for file_path in directory.rglob("*"):
