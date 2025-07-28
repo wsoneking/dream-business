@@ -61,10 +61,27 @@ def main():
         logger.error(f"❌ Failed to import critical modules: {failed_imports}")
         logger.info("🔄 Attempting to install failed modules individually...")
         
+        retry_failed = []
         for module in failed_imports:
-            if module == "yaml":
-                module = "PyYAML"
-            run_command(f"{sys.executable} -m pip install --upgrade {module}", f"Installing {module}")
+            install_name = "PyYAML" if module == "yaml" else module
+            if not run_command(f"{sys.executable} -m pip install --upgrade {install_name}", f"Installing {install_name}"):
+                retry_failed.append(module)
+        
+        # Verify imports again after individual installation
+        if retry_failed:
+            logger.info("🔍 Re-verifying failed imports...")
+            final_failed = []
+            for module in retry_failed:
+                try:
+                    __import__(module)
+                    logger.info(f"✅ {module} now imports successfully")
+                except ImportError:
+                    final_failed.append(module)
+            
+            if final_failed:
+                logger.error(f"❌ Critical modules still failing after retry: {final_failed}")
+                logger.error("❌ Installation incomplete - some critical dependencies are missing")
+                return False
     
     # Create necessary directories
     logger.info("📁 Creating necessary directories...")
@@ -81,6 +98,10 @@ def main():
     
     logger.info("🎉 Installation completed!")
     logger.info("🚀 You can now run the application with: streamlit run streamlit_app.py")
+    return True
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    if not success:
+        sys.exit(1)
+    sys.exit(0)
